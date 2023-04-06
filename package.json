@@ -1,0 +1,20 @@
+{
+  "name": "exemplar-app",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "./bin/www",
+    "generate-certs": "./bin/generate-certs.sh"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "express": "~4.18.2",
+    "hbs": "~4.0.4",
+    "morgan": "~1.9.1",
+    "samlp": "~7.0.2",
+    "xml-formatter": "^1.0.1"
+  },
+  "devDependencies": {
+    "open": "~8.4.2"
+  }
+}

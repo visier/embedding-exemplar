@@ -1,0 +1,42 @@
+<!--
+    Copyright © [2010-2023] Visier Solutions Inc. All rights reserved.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Embedding Exemplar - Home</title>
+    <link type="text/css" rel="stylesheet" href="main.css">
+</head>
+<body>
+<main>
+    <div id="title-container" class="center-text">
+        <h1 class="title">Visier Embedding Exemplar</h1>
+        <h3 class="subtitle">Sign in to the partner application.</h3>
+    </div>
+    <form method="post" id="login-form">
+        <div class="form-input">
+            <label for="id">Username</label>
+            <input type="text" id="id" name="id"/>
+        </div>
+        <div class="form-input">
+            <label for="userEmail">Email</label>
+            <input type="text" id="userEmail" name="userEmail"/>
+        </div>
+        <div class="form-input">
+            <label for="displayName">Display Name</label>
+            <input type="text" id="displayName" name="displayName"/>
+        </div>
+        <div class="form-input">
+            <label for="tenantCode">Tenant Code</label>
+            <input type="text" id="tenantCode" name="tenantCode"/>
+        </div>
+        <div class="form-buttons">
+            <input type="submit" formaction="./signin/embed-application.html" value="Embed the Visier Application"/>
+            <input type="submit" formaction="./signin/embed-chart.html" value="Embed a Visier Chart"/>
+        </div>
+    </form>
+</main>
+</body>
+</html>

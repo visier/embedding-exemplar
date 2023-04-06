@@ -1,0 +1,225 @@
+/*
+ * Copyright © [2010-2023] Visier Solutions Inc. All rights reserved.
+ */
+
+/*
+ * General
+ */
+
+* {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+html {
+    height: 100%;
+    font-size: 20px;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+}
+
+div#page-container {
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+div#title-container {
+    padding: 0.5rem;
+    border-bottom: 2px solid grey;
+    box-shadow: 0px 1px 1px 1px lightgrey;
+}
+
+h1.title, h3.subtitle {
+    text-align: center;
+    display: inline;
+    padding: 0 0 0 1rem;
+}
+
+h3.subtitle {
+    font-weight: normal;
+    font-size: .8rem;
+}
+
+/* Used to center the title of the login page */
+.center-text {
+    text-align: center;
+}
+
+/* Contains left nav and Visier */
+div#content-container {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    flex-grow: 1;
+}
+
+/* Contains Visier app and session frames */
+div#visier {
+    flex-grow: 1;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+/*
+ * Left nav bar
+ */
+
+div#left-nav {
+    width: 10rem;
+    padding: 1rem;
+    flex-grow: 0;
+
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+
+    background-color: #f4f4f4;
+    border-right: 2px solid grey;
+    box-shadow: 0px 1px 1px 1px lightgrey inset;
+}
+
+div.navigation-section {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+}
+
+div.navigation-title {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    color: green;
+}
+
+button.navigation-title, button.navigation-header, button.navigation-link {
+    background-color: transparent;
+    border: none;
+    text-align: left;
+}
+
+div#left-nav button:not(.navigation-title) {
+    cursor: pointer;
+}
+
+button.navigation-title {
+    font-size: 1rem;
+    padding: 0.2rem;
+    font-family: Tahoma, sans-serif;
+    color: green;
+}
+
+svg.navigation-title-icon {
+    fill: green;
+}
+
+button.navigation-header {
+    font-size: 1rem;
+    padding: 0.15rem;
+}
+
+button.navigation-link {
+    width: 100%;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.1rem 0.1rem 1rem;
+}
+
+button:not(.navigation-title):hover {
+    font-weight: bold;
+}
+
+div#left-nav hr {
+    width: 80%;
+    height: 2px;
+    color: grey;
+    margin: 1rem 0rem;
+}
+
+/*
+ * Visier
+ */
+
+iframe#visier-app {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#visier-session {
+    display: none;
+}
+
+div.chart-containers {
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    margin-top: 1rem;
+}
+
+/* Used in embed-chart.html */
+.center-both {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-container {
+    width: 30rem;
+    height: 24rem;
+}
+
+/*
+ * Login page
+ */
+
+form#login-form {
+    border: 1px solid black;
+    display: flex;
+    flex-flow: column nowrap;
+    padding: 2rem;
+    margin: 10rem auto;
+    justify-content: flex-start;
+    align-items: stretch;
+    width: fit-content;
+}
+
+.form-input {
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+}
+
+.form-input label {
+    width: 12rem;
+}
+
+.form-input input {
+    width: 10rem;
+    padding: 0.1rem;
+    margin: 0;
+    border: 2px solid grey;
+}
+
+.form-buttons {
+    padding-top: 2rem;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.form-button input {
+    width: 8rem;
+    margin: 0.25rem 0;
+    background-color: rgba(0, 193, 200, 0.5);
+    border-radius: 0.5rem;
+}

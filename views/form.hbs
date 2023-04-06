@@ -1,0 +1,22 @@
+<!--
+    Copyright © [2010-2023] Visier Solutions Inc. All rights reserved.
+-->
+
+<!--
+    This file is the template for a preloaded form that submits as soon as it is rendered.
+    Preloaded forms like this one are essentially a redirect URL that sends a POST request.
+-->
+<form  method="post" name="hiddenform" action={{acsUrl}}>
+    {{#each properties}}
+        <input type="hidden" name={{this.key}} value={{this.value}}>
+    {{/each}}
+    <noscript>
+        <p>JavaScript is disabled. Click Submit to continue.</p>
+        <input type="submit" value="Submit">
+    </noscript>
+</form>
+<script type="text/javascript">
+    setTimeout(() => {
+        document.forms[0].submit();
+    }, 0);
+</script>

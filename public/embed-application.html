@@ -1,0 +1,135 @@
+<!--
+    Copyright © [2010-2023] Visier Solutions Inc. All rights reserved.
+-->
+
+<!--
+    This page embeds Visier into a mock partner application. To embed Visier, the partner must provide the following
+    three things:
+        1. A hidden iframe (here, `#visier-session`) that sends a SAML assertion to Visier's Assertion Consumer Service
+           (ACS) URL.
+        2. An iframe that will house Visier (here, `#visier-app).
+        3. A handler for each message type that Visier may post (see `embedded-application.js`).
+
+    As an example of how these three components work together to embed Visier, consider the sequence of events that occurs
+    when Visier is successfully embedded for an existing Visier user:
+        1. The hidden session iframe (`#visier-session`) sends a SAML assertion for the current user to Visier's ACS URL.
+           It does this by querying the `/connectVisierSession` endpoint, which renders and immediately posts a
+           pre-filled form containing the SAML assertion.
+        2. Visier's ACS URL responds with a script that posts a message from the hidden `#visier-session` iframe to the
+           the partner's application. When a user session was successfully created in Visier, the posted message has the
+           following form:
+           {
+               visier: {
+                   messageType: 'SESSION_CONNECTED',
+                       data: {
+                           applicationSectionsUrl: ..., // Call this URL to get information about the application sections the current user has access to.
+                           logOffUrl: ...,              // Call this URL to end the Visier session for this user.
+                           sharedLinkPrefix: ...,       // Prefix an `analysis_url` with this value to get a URL for a specific analysis for the `visier-app` iframe.
+                                                        // See Visier's Integration Guide for more details on redirecting users to your application.
+                       }
+                   }
+               }
+           }
+     3. The partner application sends an AJAX request to the `applicationSectionsUrl`. The response is used to load
+        Visier in the application iframe (e.g., set the `src` attribute of `#visier-app`) and to build a Visier
+        navigation menu within the parent app.
+
+    Handlers for each of the message types Visier may post can be found in `embed-application.js`. For detailed
+    documentation on embedding Visier, see the Visier Integration Guide.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Embedded Visier Application</title>
+    <link type="text/css" rel="stylesheet" href="main.css">
+    <!-- Google stylesheet used to add icons to text -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,1,0" />
+</head>
+<body>
+    <div id="page-container">
+        <div id="title-container">
+            <h1 class="title">Visier Embedded</h1>
+            <h3 class="subtitle">The partner application embeds the entire Visier solution.</h3>
+        </div>
+        <div id="content-container">
+            <div id="left-nav">
+                <div class="navigation-title">
+                    <span class="material-symbols-outlined navigation-title-icon">person</span>
+                    <button class="navigation-title">MY ACCOUNT</button>
+                </div>
+                <div class="navigation-section">
+                    <button class="navigation-link">Paycheck</button>
+                    <button class="navigation-link">Benefits</button>
+                    <button class="navigation-link">401(k)</button>
+                    <button class="navigation-link">Time and Attendance</button>
+                    <button class="navigation-link">Training</button>
+                </div>
+                <hr>
+                <div class="navigation-title">
+                    <span class="material-symbols-outlined navigation-title-icon">corporate_fare</span>
+                    <button class="navigation-title">COMPANY</button>
+                </div>
+                <div class="navigation-section">
+                    <button class="navigation-link">Regulatory and Compliance</button>
+                    <button class="navigation-link">Forms and Policies</button>
+                </div>
+                <hr>
+                <div class="navigation-title">
+                    <svg class="navigation-title-icon" width="1rem" height="1rem" viewBox="0 0 87 76" ><path d="M5.44403 10.769C8.45069 10.769 10.8881 8.35827 10.8881 5.3845C10.8881 2.41072 8.45069 0 5.44403 0C2.43738 0 0 2.41072 0 5.3845C0 8.35827 2.43738 10.769 5.44403 10.769Z" ></path><path d="M18.0679 32.339C17.1247 32.3378 16.1984 32.0913 15.3819 31.6242C14.5655 31.157 13.8876 30.4857 13.4164 29.6775C12.9452 28.8694 12.6972 27.9529 12.6973 27.02C12.6974 26.0871 12.9455 25.1706 13.4169 24.3626L26.0073 2.78921C26.3605 2.18448 26.8306 1.65448 27.3909 1.22947C27.9511 0.804452 28.5905 0.492743 29.2726 0.312137C29.9547 0.131532 30.666 0.0855677 31.366 0.176869C32.0661 0.26817 32.741 0.494948 33.3524 0.844256C33.9639 1.19356 34.4997 1.65856 34.9294 2.2127C35.3591 2.76683 35.6743 3.39925 35.8569 4.07385C36.0395 4.74846 36.086 5.45202 35.9937 6.14439C35.9014 6.83675 35.6721 7.50436 35.3189 8.10908L22.7319 29.6797C22.2596 30.4895 21.5797 31.1617 20.7608 31.6286C19.9419 32.0955 19.0131 32.3405 18.0679 32.339Z" ></path><path d="M30.7924 54.1389C29.8492 54.1376 28.9229 53.891 28.1064 53.4237C27.29 52.9565 26.6122 52.2851 26.141 51.4769C25.6698 50.6688 25.4218 49.7522 25.4219 48.8193C25.4219 47.8864 25.6701 46.9699 26.1414 46.1618L30.1851 39.2351C30.8979 38.0138 32.0722 37.1226 33.4494 36.7576C34.8266 36.3926 36.294 36.5837 37.5288 37.2888C38.7636 37.9939 39.6646 39.1553 40.0337 40.5174C40.4027 41.8796 40.2096 43.3309 39.4967 44.5522L35.4537 51.479C34.9815 52.2883 34.302 52.9603 33.4837 53.4272C32.6654 53.8942 31.7371 54.1397 30.7924 54.1389Z" ></path><path d="M45.5757 28.8137C44.6325 28.8125 43.7062 28.566 42.8897 28.0989C42.0733 27.6317 41.3954 26.9604 40.9242 26.1523C40.453 25.3441 40.205 24.4276 40.2051 23.4947C40.2052 22.5618 40.4533 21.6453 40.9247 20.8373L51.4338 2.83409C52.1467 1.6128 53.3209 0.721626 54.6981 0.356622C56.0754 -0.00838232 57.5428 0.18268 58.7776 0.887778C60.0124 1.59288 60.9134 2.75425 61.2824 4.11641C61.6515 5.47858 61.4583 6.92995 60.7454 8.15124L50.2363 26.1544C49.7643 26.9637 49.085 27.6357 48.2667 28.1025C47.4485 28.5694 46.5203 28.8147 45.5757 28.8137Z" ></path><path d="M43.5541 76C42.6109 75.9987 41.6846 75.7521 40.8682 75.2849C40.0517 74.8176 39.3739 74.1463 38.9027 73.3381C38.4315 72.5299 38.1835 71.6134 38.1836 70.6805C38.1837 69.7475 38.4318 68.831 38.9031 68.0229L59.5636 32.6315C60.2765 31.4102 61.4507 30.5191 62.828 30.154C64.2052 29.789 65.6726 29.9801 66.9074 30.6852C68.1422 31.3903 69.0432 32.5517 69.4123 33.9138C69.7813 35.276 69.5881 36.7274 68.8752 37.9487L48.2147 73.3401C47.7428 74.1495 47.0635 74.8216 46.2453 75.2886C45.427 75.7556 44.4988 76.001 43.5541 76Z"></path><path d="M74.9559 22.2101C74.0127 22.2088 73.0865 21.9622 72.2701 21.495C71.4538 21.0278 70.776 20.3565 70.3049 19.5484C69.8338 18.7403 69.5858 17.8238 69.5859 16.891C69.5861 15.9581 69.8342 15.0417 70.3056 14.2337L76.967 2.82048C77.6799 1.59919 78.8541 0.708015 80.2314 0.343011C81.6086 -0.0219932 83.076 0.16907 84.3108 0.874167C85.5456 1.57927 86.4466 2.74064 86.8156 4.1028C87.1847 5.46497 86.9915 6.91634 86.2786 8.13763L79.6165 19.5509C79.1444 20.3601 78.4651 21.032 77.6468 21.4989C76.8286 21.9657 75.9005 22.211 74.9559 22.2101Z" ></path></svg>
+                    <button class="navigation-title">VISIER</button>
+                </div>
+                <div class="navigation-section" id="visier-navigation-section">
+<!--
+                    Once the Visier Application Sections are created, this application creates navigation elements like
+                    the comments below
+
+                        <button class="navigation-header" id="analytics">Analytics</button>
+
+                        <div class="navigation-section">
+                            <button class="navigation-link" id="home">Home</button>
+                            <button class="navigation-link" id="guidebook">Guidebook</button>
+                            <button class="navigation-link" id="explore">Explore</button>
+                            <button class="navigation-link" id="myCaptures">Captures</button>
+                            <button class="navigation-link" id="myAnalyses">Analyses</button>
+                            <button class="navigation-link" id="compare">Compare</button>
+                            <button class="navigation-link" id="search">Search</button>
+                            <button class="navigation-link" id="settings">Preferences</button>
+                        </div>
+-->
+                </div>
+                <hr>
+                <div class="navigation-title">
+                    <span class="material-symbols-outlined navigation-title-icon">logout</span>
+                    <button class="navigation-title">SESSION</button>
+                </div>
+                <div class="navigation-section">
+                    <button class="navigation-link" id="logout" onclick="cleanUpVisierSession()">Logout</button>
+                    <button class="navigation-link" id="keep-visier-session-alive" onclick="keepVisierSessionAlive()">Keep Visier Session Alive</button>
+                </div>
+            </div>
+            <div id="visier">
+                <!--
+                    This iframe embeds the Visier Application. The `src` attribute will be set once the session is established
+                    And the application section URLs or shared link prefix have been obtained.
+
+                    See comments at head of file for more details.
+                 -->
+                <iframe id="visier-app" style="display: none"></iframe>
+                <img id="visier-app-loading" src="loading.gif" />
+                <!--
+                    This iframe establishes an authenticated session with Visier for the current user.
+                    It sends a POST request (by way of preloaded form) with a SAML assertion to Visier's
+                    assertion consumer service (ACS) URL. See `saml-log.xml`  for the most recent
+                    SAML Response sent by this server.
+
+                    See comments at head of file for more details.
+                -->
+                <iframe id="visier-session" src="./connectVisierSession" style="display: none"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="embed-application.js"></script>
+</body>
+</html>
