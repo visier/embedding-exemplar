@@ -30,9 +30,22 @@
                    }
                }
            }
-     3. The partner application sends an AJAX request to the `applicationSectionsUrl`. The response is used to load
-        Visier in the application iframe (e.g., set the `src` attribute of `#visier-app`) and to build a Visier
-        navigation menu within the parent app.
+     3. The partner application sends an AJAX request to the `applicationSectionsUrl`. The response contains an
+        `availableSections` property, which is used to load Visier in the application iframe (e.g., set the `src`
+        attribute of `#visier-app`) and to build a Visier navigation menu within the parent app. The initial URL used to
+        load Visier can be determined in two ways.
+            1. A click through link is used. Visier enables sharing content between users. To ensure that users are
+               directed into your application, and not Visier, a "click through link" must be configured in
+                    Model > Settings > Navigation, Notices & Links
+               Set the click through link to the URL of the partner application that hosts Visier. Visier sharing
+               links will now direct the user to the specified URL with a query parameter specifying the content to
+               display. The query parameter will either be `analysis_url="<value>"` or `user_preferences_url="<value">`.
+               The partner application must check for the presence of either of these values when loading Visier. If
+               either of these values exists, set the `src` of the Visier app iframe to that value prepended by the
+               `sharedLinkPrefix` provided in the `SESSION_CONNECTED` message.
+            2. No click through link is used, and the partner application may set the Visier app iframe `src` to any
+               of the URLs in the `availableSections` property described above. See `loadVisierApp()` in
+               `embed-application.js` for an example.
 
     Handlers for each of the message types Visier may post can be found in `embed-application.js`. For detailed
     documentation on embedding Visier, see the Visier Integration Guide.
