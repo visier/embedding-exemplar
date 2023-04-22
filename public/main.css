@@ -159,8 +159,8 @@ iframe#visier-app {
 div.chart-containers {
     width: 100%;
     display: flex;
-    flex-flow: row wrap;
-    justify-content: space-around;
+    flex-flow: column nowrap;
+    align-items: center;
     margin-top: 1rem;
 }
 
@@ -173,8 +173,16 @@ div.chart-containers {
 }
 
 .chart-container {
-    width: 30rem;
-    height: 24rem;
+    max-width: 1200px;
+    min-width: 800px;
+    width: 60%;
+    height: 36rem;
+}
+
+@media only screen and (max-width: 1000px) {
+    .chart-container {
+        width: 100%;
+    }
 }
 
 /*
