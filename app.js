@@ -59,20 +59,12 @@ app.post('/signin/:redirect', (req, res, next) => {
   res.redirect('../' + req.params.redirect);  // Send redirect response
 });
 
-// Embed Visier visuals in the partner application
-app.get('/embed-chart', (req, res) => {
-  res.render('embed-chart');
-});
-
-
 // Create an authenticated session with Visier. When embedded in the partner application
 // as an `iframe`, this endpoint creates a Visier session and emits a message on completion.
 //
 // The SAML Response sent to Visier is recorded in `saml-log.xml`. See `saml/visierSession.js`
 // for more details.
-app.get('/connectVisierSession', (req, res, next) => {
-  postSamlResponseToVisier(req, res, next);
-});
+app.get('/connectVisierSession', postSamlResponseToVisier);
 
 // Shows an error page when the Visier Solution cannot be loaded
 app.get('/visierError', (req, res) => {
