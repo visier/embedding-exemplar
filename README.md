@@ -85,7 +85,7 @@ You must configure 2 URLs in this application to values specific for your organi
 2. In `./public/embed-chart.html`  --> `visierConfig` and `visierConfigSingleChart`
    1. Used by Visier's scripts to verify if a user session already exists.
 
-## Using a Different Hostname for the Exmplar App
+## Using a Different Hostname for the Exemplar App
 1. Change the value of `hostname` in `./config.js`
 2. Add an entry to your `/etc/hosts` file to direct this hostname to your localhost. E.g.,
    127.0.0.1        www.visier-exemplar.com
