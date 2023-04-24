@@ -225,6 +225,10 @@ form#login-form {
     justify-content: space-between;
 }
 
+.form-buttons.justify-flex-end {
+    justify-content: flex-end;
+}
+
 .form-button input {
     width: 8rem;
     margin: 0.25rem 0;

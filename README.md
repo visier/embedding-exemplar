@@ -16,6 +16,7 @@ If you intend to use SSO for your own users (as opposed to your customers' users
 5. [Running Locally](#running-locally)
 
 # Embedding Overview
+## Required Components
 To embed Visier, the partner application must include three elements:
 1. A hidden iframe that sends a SAML assertion to Visier's Assertion Consumer Service (ACS) URL.
    1. See `iframe#visier-session` in `embed-application.html`.
@@ -24,6 +25,7 @@ To embed Visier, the partner application must include three elements:
 3. A handler for each message type that Visier may post
    1. See `embedded-application.js`
    
+## Workflow
  As an example of how these three components work together to embed Visier, consider the sequence of events that occurs
  when Visier is successfully embedded in this application for an existing Visier user:
  1. The hidden session iframe (`#visier-session`) sends a SAML assertion for the current user to Visier's ACS URL. It does this by querying the `/connectVisierSession` endpoint, which renders and immediately posts a pre-filled form containing the SAML assertion.
@@ -43,6 +45,7 @@ To embed Visier, the partner application must include three elements:
 ```
 3. The partner application sends an AJAX request to the `applicationSectionsUrl`. The response contains an `availableSections` property, which is used to load Visier in the application iframe (e.g., set the `src` attribute of `#visier-app`) and to build a Visier navigation menu within the parent app. The initial URL used to load Visier can be determined in two ways.
    1. A click through link is used. Visier enables sharing content between users. To ensure that users are directed into your application, and not Visier, a "click through link" must be configured in `Model > Settings > Navigation, Notices & Links`. Set the click through link to the URL of the partner application that hosts Visier. Visier sharing links will now direct the user to the your application with a query parameter specifying the content to  display. The query parameter will either be `analysis_url="<value>"` or `user_preferences_url="<value">`. The partner application must check for the presence of either of these values when loading Visier. If either of these values exists, set the `src` of the Visier app iframe to the query parameter value prepended by the `sharedLinkPrefix` provided in the `SESSION_CONNECTED` message.
+      1. **NOTE:** The partner application must be able to handle the user being directed to the click-through link you specify without being signed in to the partner application. In this Exemplar, the user is redirected to the login page with the click-through link query parameter included in the URL. The parameter is forwarded throughout the sign in process so that when they are redirected to `/embed-application.html` the original click-through link parameter is maintained.
    2. No click through link is used, and the partner application may set the Visier app iframe `src` to any of the URLs in the `availableSections` property described above. See `loadVisierApp()` in `embed-application.js` for an example.
 
 Visier is now successfully embedded in the partner application! Be aware that there are other workflows that may take place, such as when an error occurs or when a new user is auto-provisioned. See `embed-application.js` for documentation and implementation of other workflows.
@@ -106,6 +109,10 @@ You must add an SSO configuration and embeddable domain to your Visier sandbox t
 ### Embeddable Domain
 1. In Studio in your sanbox tenant, navigate to `Settings > Embeddable Domains`
 2. Add an entry for the `hostname` specified in `config.js` (default is `https:127.0.0.1`).
+### Click through link
+To enable the use of click through links:
+1. In studio in the production project of your sandbox tenant, navigate to `Model > Settings > Navigation, Notices, Links`.
+2. Set "Sharing click-through link" to `https://127.0.0.1/embed-application.html`
 
 # Running Locally
 ```bash

@@ -32,10 +32,10 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static('public'));
 // Use Handlebars to render dynamic pages
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+
 // Set user based on a mock "session"
 app.use((req, res, next) => {
   const sid = req.cookies[sessionCookie];  // Get `sid` from cookies
@@ -45,18 +45,42 @@ app.use((req, res, next) => {
   next();
 });
 
+// If a click-through link was used without the user being signed in to the partner application, redirect them to a
+// login page with the click-through link parameters included
+app.use("/embed-application.html", (req, res, next) => {
+  const stringifyQueryParams = (paramsObj) => Object.entries(paramsObj)
+      .reduce((paramString, [key, val]) => (paramString ? '&' : '?') + `${key}=${val}`, '')
+
+    if (!req.user) {
+      const queryString = req.query && stringifyQueryParams(req.query)
+      res.redirect(queryString ? '/click-through-login.html' + queryString : '/click-through-login.html')
+    } else {
+      next()
+    }
+  }
+)
+
+app.use(express.static('public'));
+
 /**
  * Routes
  */
 // Create a user session based on the login information.
 // The user is immediately redirected to the `redirect` URL provided
 app.post('/signin/:redirect', (req, res, next) => {
-  const user = req.body;                          // Get user details from POST request body
-  const sid = crypto.randomUUID();                // Create session id
-  sessions[sid] = user;                           // Record session in memory
+  // Extract any click through link parameters that were forwarded to the login page
+  const queryParams = req.body.queryParams ? '?' + req.body.queryParams : ''
+  delete req.body.queryParams
+
+  // Create user session
+  const user = req.body;            // Get user details from POST request body
+  const sid = crypto.randomUUID();  // Create session id
+  sessions[sid] = user;             // Record session in memory
+
   // Set session cookie. `sameSite: none` is required for the auto-provision workflow. See comments for `handleAutoprovisionSucess()` in `embed-application.js` for more information.
   res.cookie(sessionCookie, sid, { sameSite: "none", secure: true });
-  res.redirect('../' + req.params.redirect);  // Send redirect response
+  // Add the redirect URL provided by `index.html` and the query params provided by the click-through link
+  res.redirect('../' + req.params.redirect + queryParams);
 });
 
 // Create an authenticated session with Visier. When embedded in the partner application
