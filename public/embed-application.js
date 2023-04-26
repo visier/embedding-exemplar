@@ -93,15 +93,15 @@ function handleVisierSessionConnectedEvent(visierMessage) {
     });
 
     function loadVisierApp(availableSections) {
-        // Check if an analysis or user preferences URL was provided. See comments in `embed-application.html` for more details
+        // Check if an analysis click-through link was provided. Consult the README for more details.
         const params = new URLSearchParams(window.location.search);
-        const sharedLinkSuffix = params.get("analysis_url") || params.get("user_preferences_url");
+        const analysis_url = params.get("analysis_url");
 
-        if (sharedLinkSuffix) {
+        if (analysis_url) {
             // A "click-through link" was used. Prepend the value provided with the `sharedLinkPrefix` provided in the
             // `SESSION_CONNECTED` message.
             // Navigate to target specified in URL query parameter
-            renderVisierAppIframe(decodeURI(visierGlobals.endpoints.sharedLinkPrefix + sharedLinkSuffix));
+            renderVisierAppIframe(decodeURI(visierGlobals.endpoints.sharedLinkPrefix + analysis_url));
         } else { // A "click-through link" was not used
             // Find the "analytics" section home
             const analytics = availableSections.find(section => section.sectionId === "analytics") || availableSections[0]
