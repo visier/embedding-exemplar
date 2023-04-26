@@ -33,10 +33,33 @@
             <input type="text" id="tenantCode" name="tenantCode"/>
         </div>
         <div class="form-buttons">
-            <input type="submit" formaction="./signin/embed-application.html" value="Embed the Visier Application"/>
-            <input type="submit" formaction="./signin/embed-chart.html" value="Embed a Visier Chart"/>
+            <input id="embed-chart-submit" type="submit" formaction="./signin/embed-chart.html" value="Embed a Visier Chart"/>
+            <input id="embed-application-submit" type="submit" formaction="./signin/embed-application.html" value="Embed the Visier Application"/>
+
+            <input id="query-param-input" type="hidden" name="queryParams" value="" />
+            <input id="query-param-submit" type="submit" formaction="./signin/embed-application.html" value="Sign in" style="display: none;"/>
         </div>
     </form>
+    <script>
+        // Check to see if we were redirected here from a click through link that a user clicked on without being signed in
+        // If so, forward click-through link params to the next page, and change the form inputs. Consult the README or
+        // the Visier Integration guide for more details.
+        const queryParams = new URLSearchParams(window.location.search).toString();
+        console.log(queryParams);
+        if (queryParams) {
+            hideSubmits("embed-application-submit", "embed-chart-submit");
+            showSubmits("query-param-submit");
+            document.getElementById("query-param-input").value = queryParams;
+        }
+
+        function hideSubmits(...submitIds) {
+            submitIds.forEach(submitId => document.getElementById(submitId).style.display = "none")
+        }
+
+        function showSubmits(...submitIds) {
+            submitIds.forEach(submitId => document.getElementById(submitId).style.display = "inline-block")
+        }
+    </script>
 </main>
 </body>
 </html>

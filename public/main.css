@@ -221,12 +221,8 @@ form#login-form {
 .form-buttons {
     padding-top: 2rem;
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: row-reverse wrap;
     justify-content: space-between;
-}
-
-.form-buttons.justify-flex-end {
-    justify-content: flex-end;
 }
 
 .form-button input {

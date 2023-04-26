@@ -53,7 +53,7 @@ app.use("/embed-application.html", (req, res, next) => {
 
     if (!req.user) {
       const queryString = req.query && stringifyQueryParams(req.query)
-      res.redirect(queryString ? '/click-through-login.html' + queryString : '/click-through-login.html')
+      res.redirect('/' + (queryString || ''))
     } else {
       next()
     }
@@ -68,7 +68,7 @@ app.use(express.static('public'));
 // Create a user session based on the login information.
 // The user is immediately redirected to the `redirect` URL provided
 app.post('/signin/:redirect', (req, res, next) => {
-  // Extract any click through link parameters that were forwarded to the login page
+  // Check for any click-through parameters included in this sign in request
   const queryParams = req.body.queryParams ? '?' + req.body.queryParams : ''
   delete req.body.queryParams
 
