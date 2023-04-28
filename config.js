@@ -25,9 +25,9 @@ module.exports = {
         cert: fs.readFileSync(path.join(__dirname, 'certificates', 'https-cert.pem'))
     },
     saml: {
-        // Visier's ACS URL for your tenant. You must replace {{vanityURL}} with the vanity URL assigned to your tenant.
+        // Visier's ACS URL for your tenant. You must replace {{vanityName}} with the vanity name assigned to your tenant.
         // Speak to your implementation consultant if you do not know your vanity URL.
-        visierAcsUrl: '{{vanityURL}}/hr/auth/authenticateWithSaml',
+        visierAcsUrl: 'https://{{vanityName}}.visier.com/VServer/auth/authenticateWithSaml',
         // The 'URL' that issues SAML assertions. The "Tenant Single Sign-On" configuration in your
         // Visier tenant must have this value as the "issuer"
         samlIssuerUrl: `https://www.visier-exemplar.com`,

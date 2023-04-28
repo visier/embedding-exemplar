@@ -3,39 +3,7 @@
 -->
 
 <!--
-    This page embeds Visier into a mock partner application. To embed Visier, the partner must provide the following
-    three things:
-        1. A hidden iframe (here, `#visier-session`) that sends a SAML assertion to Visier's Assertion Consumer Service
-           (ACS) URL.
-        2. An iframe that will house Visier (here, `#visier-app).
-        3. A handler for each message type that Visier may post (see `embedded-application.js`).
-
-    As an example of how these three components work together to embed Visier, consider the sequence of events that occurs
-    when Visier is successfully embedded for an existing Visier user:
-        1. The hidden session iframe (`#visier-session`) sends a SAML assertion for the current user to Visier's ACS URL.
-           It does this by querying the `/connectVisierSession` endpoint, which renders and immediately posts a
-           pre-filled form containing the SAML assertion.
-        2. Visier's ACS URL responds with a script that posts a message from the hidden `#visier-session` iframe to the
-           the partner's application. When a user session was successfully created in Visier, the posted message has the
-           following form:
-           {
-               visier: {
-                   messageType: 'SESSION_CONNECTED',
-                       data: {
-                           applicationSectionsUrl: ..., // Call this URL to get information about the application sections the current user has access to.
-                           logOffUrl: ...,              // Call this URL to end the Visier session for this user.
-                           sharedLinkPrefix: ...,       // Prefix an `analysis_url` with this value to get a URL for a specific analysis for the `visier-app` iframe.
-                                                        // See Visier's Integration Guide for more details on redirecting users to your application.
-                       }
-                   }
-               }
-           }
-     3. The partner application sends an AJAX request to the `applicationSectionsUrl`. The response is used to load
-        Visier in the application iframe (e.g., set the `src` attribute of `#visier-app`) and to build a Visier
-        navigation menu within the parent app.
-
-    Handlers for each of the message types Visier may post can be found in `embed-application.js`. For detailed
-    documentation on embedding Visier, see the Visier Integration Guide.
+    This page embeds Visier into a mock partner application. Consult the README or the Visier Integration Guide for an overview of embedding Visier.
 -->
 <!DOCTYPE html>
 <html lang="en">

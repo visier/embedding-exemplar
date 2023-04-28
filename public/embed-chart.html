@@ -55,7 +55,7 @@
          */
         // Included for reference only: This is the configuration for embedding a single chart.
         const visierConfigSingleChart = {
-            loginUrl: "{{vanityURL}}/hr/auth/embedded",
+            loginUrl: "https://{{vanityName}}.visier.com/VServer/auth/embedded",
             idpUrl: "https://127.0.0.1/connectVisierSession", // Required if `enableHiddenSession` is true
             enableHiddenSession: true,
             contentId: "bbfdf21b-1f37-4504-8397-ac97043555f1",
@@ -64,7 +64,7 @@
 
         // The configuration for embedding multiple charts.
         const visierConfig = {
-            loginUrl: "{{vanityUrl}}/hr/auth/embedded",
+            loginUrl: "https://{{vanityName}}.visier.com/VServer/auth/embedded",
             idpUrl: "https://127.0.0.1/connectVisierSession", // Required only if `enableHiddenSession` is true
             enableHiddenSession: true,
             charts: [{

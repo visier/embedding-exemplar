@@ -82,7 +82,7 @@ function handleVisierSessionConnectedEvent(visierMessage) {
                 return;
             }
 
-            loadVisierApp(availableSections[0].sectionUrl); // Load the Visier App, default to loading first available section
+            loadVisierApp(availableSections); // Load the Visier App, default to loading first available section
             if (!visierGlobals.isAppLoaded){ // Avoid recreating Visier menu if app is already loaded
                 createVisierMenu(availableSections); // Add Visier navigation to partner application
                 visierGlobals.keepSessionAliveTimer = setInterval(() => keepVisierSessionAlive(), 600000) // 10 minute interval. See `keepVisierSessionAlive()` for more details
@@ -92,17 +92,22 @@ function handleVisierSessionConnectedEvent(visierMessage) {
         }
     });
 
-    function loadVisierApp(defaultUrl) {
-        // Check if a analysis or user preferences URL was provided
+    function loadVisierApp(availableSections) {
+        // Check if an analysis click-through link was provided. Consult the README for more details.
         const params = new URLSearchParams(window.location.search);
-        const sharedLinkSuffix = params.get("analysis_url") || params.get("user_preferences_url");
+        const analysis_url = params.get("analysis_url");
 
-        if (sharedLinkSuffix) { // A "click-through link" was used
+        if (analysis_url) {
+            // A "click-through link" was used. Prepend the value provided with the `sharedLinkPrefix` provided in the
+            // `SESSION_CONNECTED` message.
             // Navigate to target specified in URL query parameter
-            navigateVisier(decodeURI(visierGlobals.endpoints.sharedLinkPrefix + sharedLinkSuffix), "");
+            renderVisierAppIframe(decodeURI(visierGlobals.endpoints.sharedLinkPrefix + analysis_url));
         } else { // A "click-through link" was not used
+            // Find the "analytics" section home
+            const analytics = availableSections.find(section => section.sectionId === "analytics") || availableSections[0]
+            const home = analytics.availableRooms.find(room => room.roomId === "home")
             // Load first application section
-            renderVisierAppIframe(defaultUrl);
+            renderVisierAppIframe(home.roomUrl);
         }
     }
 
