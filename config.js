@@ -4,35 +4,35 @@
 
 /**
  * You must set the `saml.visierAcsUrl` property to your Visier tenant's ACS URL. Speak to your Implementation Consultant
- * for help. The rest of the configurations in this file can be left as is.
+ * for help. The rest of the configuration in this file can be left as is.
  */
 
 const fs = require("fs");
 const path = require("path");
 module.exports = {
-    // The "embeddable domains" configuration in your Visier tenant needs an entry that matches the hostname specified
-    // here. To change the hostname this application uses, you need to:
-    //   1. Change the value of `hostname` here
-    //   2. Add an entry to your `/etc/hosts` file to direct this hostname to your localhost. E.g.,
+    // The Embeddable Domains configuration in your Visier tenant needs an entry that matches the hostname specified
+    // here. To change the hostname this application uses:
+    //   1. Change the value of `hostname` here.
+    //   2. Add an entry to your `/etc/hosts` file to direct this hostname to your localhost. For example,
     //          127.0.0.1        www.visier-exemplar.com
-    //   3. Add an entry to your "embeddable domains" configuration that matches the new hostname.
+    //   3. Add an entry to your Embeddable Domains configuration that matches the new hostname.
     //   4. In ./public/embed-chart.html, change the `visierConfig` objects to use your new hostname for the `idpUrl`
     //      property.
     hostname: 'https://127.0.0.1',
-    // Required to run this application as an https server
+    // Required to run this application as an HTTPS server.
     httpsPKI: {
         key: fs.readFileSync(path.join(__dirname, 'certificates', 'https-key.pem')),
         cert: fs.readFileSync(path.join(__dirname, 'certificates', 'https-cert.pem'))
     },
     saml: {
         // Visier's ACS URL for your tenant. You must replace {{vanityName}} with the vanity name assigned to your tenant.
-        // Speak to your implementation consultant if you do not know your vanity URL.
+        // Speak to your Implementation Consultant if you do not know your vanity URL.
         visierAcsUrl: 'https://{{vanityName}}.visier.com/VServer/auth/authenticateWithSaml',
         // The 'URL' that issues SAML assertions. The "Tenant Single Sign-On" configuration in your
-        // Visier tenant must have this value as the "issuer"
+        // Visier tenant must have this value as the "issuer".
         samlIssuerUrl: `https://www.visier-exemplar.com`,
         // Required for issuing SAML assertions. The "Tenant Single Sign-On" configuration in your Visier tenant must
-        // have `Certificate` set to the contents of the `cert` file
+        // have `Certificate` set to the contents of the `cert` file.
         key:  fs.readFileSync(path.join(__dirname, 'certificates', 'saml-key.pem')),
         cert: fs.readFileSync(path.join(__dirname, 'certificates', 'saml-cert.pem')),
         samlLogFilePath: path.join(__dirname, 'saml', 'saml-log.xml')

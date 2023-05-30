@@ -20,7 +20,7 @@
  *   4. Handle Errors
  *          - Handle message types:
  *              AUTHENTICATION_ERROR, VISIER_APP_DOWN, USER_AUTOPROVISION_FAILED
- *   5. Register message handlers
+ *   5. Register Message Handlers
  */
 
 /**
@@ -28,9 +28,9 @@
  */
 const visierGlobals = {
     isAppLoaded: false,
-    endpoints: undefined,       // Will be set while bootstrapping Visier
-    navigationLinks: undefined, // Will be set while bootstrapping Visier
-    keepSessionAliveTimer: undefined, // Set while bootstrapping Visier
+    endpoints: undefined,       // Set while bootstrapping Visier.
+    navigationLinks: undefined, // Set while bootstrapping Visier.
+    keepSessionAliveTimer: undefined, // Set while bootstrapping Visier.
     appIframe: document.getElementById('visier-app'),
     appLoadingImg: document.getElementById('visier-app-loading'),
     sessionIframe: document.getElementById('visier-session')
@@ -42,7 +42,7 @@ const visierGlobals = {
 
 /**
  * Handle `SESSION_CONNECTED` messages.
- * This message is emitted once an authenticated session has been established with Visier for the current user.
+ * This message is emitted after an authenticated session is established with Visier for the current user.
  * The message has the following form:
  * {
  *     messageType: 'SESSION_CONNECTED',
@@ -56,23 +56,23 @@ const visierGlobals = {
  *
  * This function responds to `SESSION_CONNECTED` events in this way:
  *   1. Call the `applicationSectionsUrl`.
- *   2. Build a navigation menu integrated with the partner application
- *   3. Check if a "click-through link" was used, and load the Visier application frame at either the click through
+ *   2. Build a navigation menu integrated with the partner application.
+ *   3. Check if a click-through link is defined and load the Visier application frame at either the click-through
  *      target or at the first application section available to this user.
  */
 function handleVisierSessionConnectedEvent(visierMessage) {
     // Obtain data from `SESSION_CONNECTED` message.
     visierGlobals.endpoints = visierMessage.data;
-    // Create new AJAX request
+    // Create new AJAX request.
     const xmlHttpReq = new XMLHttpRequest();
-    // Set request method and URL
+    // Set request method and URL.
     xmlHttpReq.open('GET', visierGlobals.endpoints.applicationSectionsUrl);
-    // Include cookies in request -- we need to send the VisierASIDToken and CSRFToken
+    // Include cookies in request—we need to send the VisierASIDToken and CSRFToken.
     xmlHttpReq.withCredentials = true;
-    // Expect a JSON response
+    // Expect a JSON response.
     xmlHttpReq.setRequestHeader('Accept', 'application/json');
-    xmlHttpReq.responseType = "json"; // Automatically parses the response from JSON
-    // On successful response, set the `src` attribute of the Visier App iframe
+    xmlHttpReq.responseType = "json"; // Automatically parses the response from JSON.
+    // On successful response, set the `src` attribute of the Visier App iframe.
     xmlHttpReq.addEventListener('load', (loadEvent) => {
         if (xmlHttpReq.status === 200) {
             const availableSections = xmlHttpReq.response.availableSections;
@@ -82,10 +82,10 @@ function handleVisierSessionConnectedEvent(visierMessage) {
                 return;
             }
 
-            loadVisierApp(availableSections); // Load the Visier App, default to loading first available section
-            if (!visierGlobals.isAppLoaded){ // Avoid recreating Visier menu if app is already loaded
-                createVisierMenu(availableSections); // Add Visier navigation to partner application
-                visierGlobals.keepSessionAliveTimer = setInterval(() => keepVisierSessionAlive(), 600000) // 10 minute interval. See `keepVisierSessionAlive()` for more details
+            loadVisierApp(availableSections); // Load the Visier App, default to loading first available section.
+            if (!visierGlobals.isAppLoaded){ // Avoid recreating Visier menu if app is already loaded.
+                createVisierMenu(availableSections); // Add Visier navigation to partner application.
+                visierGlobals.keepSessionAliveTimer = setInterval(() => keepVisierSessionAlive(), 600000) // 10 minute interval. See `keepVisierSessionAlive()` for more details.
             }
         } else {
             applicationSectionsErrorHandler(loadEvent);
@@ -93,20 +93,20 @@ function handleVisierSessionConnectedEvent(visierMessage) {
     });
 
     function loadVisierApp(availableSections) {
-        // Check if an analysis click-through link was provided. Consult the README for more details.
+        // Check if an analysis click-through link is defined. Consult the README for more details.
         const params = new URLSearchParams(window.location.search);
         const analysis_url = params.get("analysis_url");
 
         if (analysis_url) {
-            // A "click-through link" was used. Prepend the value provided with the `sharedLinkPrefix` provided in the
+            // A click-through link was used. Prepend the value provided with the `sharedLinkPrefix` provided in the
             // `SESSION_CONNECTED` message.
-            // Navigate to target specified in URL query parameter
+            // Navigate to target specified in URL query parameter.
             renderVisierAppIframe(decodeURI(visierGlobals.endpoints.sharedLinkPrefix + analysis_url));
-        } else { // A "click-through link" was not used
-            // Find the "analytics" section home
+        } else { // A click-through link was not used.
+            // Find the "analytics" section home.
             const analytics = availableSections.find(section => section.sectionId === "analytics") || availableSections[0]
             const home = analytics.availableRooms.find(room => room.roomId === "home")
-            // Load first application section
+            // Load first application section.
             renderVisierAppIframe(home.roomUrl);
         }
     }
@@ -120,21 +120,21 @@ function handleVisierSessionConnectedEvent(visierMessage) {
 
 /**
  * Handle `USER_AUTOPROVISION_SUCCESS` messages.
- * This message is emitted when a new Visier user is created automatically for the current user. Auto-provisioning must
- * be enabled in your Visier tenant's settings under "Tenant Single Sign-On" and it must be the first time this user is
- * using Visier. If the "IdP URL" is configured properly for your Visier tenant under "Tenant Single Sign-On", no action
+ * This message emits when a new Visier user is created automatically for the current user. Auto-provisioning must
+ * be enabled in your Visier tenant's settings in "Tenant Single Sign-On" and it must be the first time this user is
+ * using Visier. If the IdP URL is configured properly for your Visier tenant in "Tenant Single Sign-On", no action
  * is needed for this message. Set the IdP URL to the same value as the original URL you set for the Visier session
- * iframe (`#visier-session`). When the user is auto-provisioned and the message is emitted, Visier will automatically
- * redirect the Visier session iframe to the IdP URL and the normal, successful session creation workflow will begin.
+ * iframe (`#visier-session`). When the user auto-provisions and the message emits, Visier
+ * redirects the Visier session iframe to the IdP URL and the normal, successful session creation workflow will begin.
  *
- * Note: When auto-provisioning occurs, the session iframe will be redirected from a Visier URL to the IdP URL you set
+ * Note: When auto-provisioning occurs, the session iframe redirects from a Visier URL to the IdP URL you set
  * in your SSO configuration. In order for your user's session cookies to be sent with the redirect, they must have the
  * `sameSite` attribute set to `none` (and therefore also `secure: true`). To avoid using those settings, you can
  * manually reload the Visier session iframe in this message handler.
  */
 function handleAutoprovisionSuccess(visierMessage) {
     console.log("User successfully auto-provisioned!");
-    // Manually re-load the Visier session iframe if you cannot use session cookies with `sameSite: none`
+    // Manually reload the Visier session iframe if you cannot use session cookies with `sameSite: none`
     // if (visierGlobals.appIframe.src === './connectVisierSession') {
     //     visierGlobals.appIframe.contentWindow.location.reload();
     // } else {
@@ -144,7 +144,7 @@ function handleAutoprovisionSuccess(visierMessage) {
 
 /**
  * Handle `VISIER_APP_LOADED` events.
- * This event is intended to prevent partners from loading the Visier solution multiple times and to support session
+ * This event prevents partners from loading the Visier solution multiple times and supports session
  * clean up. See `navigateVisier()` and `cleanUpVisierSession()` for more details.
  */
 function handleVisierAppLoadedEvent(visierMessage) {
@@ -209,34 +209,34 @@ function removeKeepVisierSessionAliveTimer() {
  * Clean up the Visier user session. The partner application should call this method when it ends its own user session.
  */
 function cleanUpVisierSession() {
-    removeKeepVisierSessionAliveTimer(); // Stop keeping the Visier session alive
+    removeKeepVisierSessionAliveTimer(); // Stop keeping the Visier session alive.
     // If Visier is not loaded yet, query the logout URL directly.
     // If Visier is loaded, post a message to the Visier iframe.
-    if (!visierGlobals.isAppLoaded) { // Call logOOffUrl directly
+    if (!visierGlobals.isAppLoaded) { // Call logOffUrl directly.
         if (visierGlobals.endpoints) {
             console.error("Cannot clean up Visier session as it is not connected");
             return;
         }
         // Call the Visier public client API to clean up the session.
-        // Create a new AJAX request
+        // Create a new AJAX request.
         const xmlHttpReq = new XMLHttpRequest();
-        // Set request method and URL
+        // Set request method and URL.
         xmlHttpReq.open('GET', visierGlobals.endpoints);
-        // Include cookies in request -- we need to send the Visier Tokens
+        // Include cookies in request—we need to send the Visier Tokens.
         xmlHttpReq.withCredentials = true;
         // Expect text response
         xmlHttpReq.responseType = 'text';
         xmlHttpReq.addEventListener('load', (loadEvent) => {
             if (xmlHttpReq.status === 200) {
                 //Handles success. This is where your application performs cleanup on logoff.
-                location.assign('../'); // Navigate back to the partner's sign-in page
+                location.assign('../'); // Navigate back to the partner's sign in page.
             } else {
                 // Handle error.
                 console.error("There was an error logging the user out of Visier.");
                 console.error(loadEvent.data);
             }
         });
-    } else { // Post message to `#visier-app`
+    } else { // Post message to `#visier-app`.
         const message = {
             "visier": {
                 "messageType": "PARENT_SESSION_CLEANUP",
@@ -248,7 +248,7 @@ function cleanUpVisierSession() {
     }
 
     setTimeout(() => {
-        location.assign('../'); // Navigate back to the partner sign-in page
+        location.assign('../'); // Navigate back to the partner sign in page.
     }, 0);
     return;
 }
@@ -277,10 +277,10 @@ function cleanUpVisierSession() {
  */
 function createVisierMenu(sections) {
     sections.forEach((section) => {
-        // Find the Visier navigation container
+        // Find the Visier navigation container.
         const visierNavigationSection = document.getElementById('visier-navigation-section');
 
-        // Create an element for the application section title/root
+        // Create an element for the application section title/root.
         const sectionHeader = document.createElement('button');
         sectionHeader.className = 'navigation-header'
         sectionHeader.id = section.sectionId;
@@ -289,10 +289,10 @@ function createVisierMenu(sections) {
             navigateVisier(section.sectionUrl, section.sectionId)
         });
 
-        // Create a section for the "rooms" (i.e., subsections)
+        // Create a section for the "rooms" (that is, subsections).
         const sectionDiv = document.createElement('div');
         sectionDiv.className = 'navigation-section';
-        // Create links for each room
+        // Create links for each room.
         section.availableRooms.forEach(room => {
             const navLink = document.createElement('button');
             navLink.className = 'navigation-link'
@@ -312,14 +312,14 @@ function createVisierMenu(sections) {
  * Navigate Visier from the partner application.
  */
 function navigateVisier(menuUrl, menuId) {
-    // First click on any navigation menu will load the Visier application iframe with the provided section/room URL/ID
-    // Subsequent clicks should post a navigation message to the Visier application iframe.
+    // The first click on any navigation menu will load the Visier application iframe with the provided section/room URL/ID.
+    // Subsequent clicks post a navigation message to the Visier application iframe.
     if (!visierGlobals.isAppLoaded) {
         renderVisierAppIframe(menuUrl);
         return;
     }
 
-    // Create navigation message
+    // Create navigation message.
     if (menuId) {
         const message = {
             "visier": {
@@ -345,7 +345,7 @@ function navigateVisier(menuUrl, menuId) {
  *   1. The SSO configuration for the specified Visier tenant is incorrect or disabled.
  *   2. Auto-provisioning is disabled and the user does not have a Visier profile.
  *   3. The `tenantCode` claim in the SAML assertion was invalid.
- *   4. The SAML assertion sent to Visier's ACS URL was malformed
+ *   4. The SAML assertion sent to Visier's ACS URL was malformed.
  *
  * A partner application must handle this event gracefully, as it represents a blocked user flow.
  */
@@ -380,7 +380,7 @@ const messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
 
 // Window postMessage event listener: Listen to message from child iframes (`#visier-session` and `#visier-app`).
 eventer(messageEvent, function (e) {
-    // check if received message is from trusted window.
+    // Check if received message is from a trusted window.
     if (e.source.parent === window) {
         let message;
         try {
@@ -430,7 +430,7 @@ eventer(messageEvent, function (e) {
  */
 
 /**
- * A partner must handle errors embedding the Visier application gracefully, as they will block user flows. In this
+ * A partner must handle errors embedding the Visier application gracefully, as these errors will block user flows. In this
  * example application, we render an error message in place of the Visier application.
  */
 function renderVisierErrorMessage(message, data) {
@@ -442,11 +442,11 @@ function renderVisierErrorMessage(message, data) {
 }
 
 /**
- * When the application is loaded for the first time, the `src` attribute of the Visier application iframe must be set
+ * When the application loads for the first time, the `src` attribute of the Visier application iframe must be set
  * as desired. In this example application, the placeholder loading animation must also be removed.
  */
 function renderVisierAppIframe(url) {
-    // Hide loading gif
+    // Hide loading GIF.
     visierGlobals.appLoadingImg.style.display = "none";
     // Render `#visier-app` iframe.
     visierGlobals.appIframe.src = url;

@@ -9,7 +9,7 @@
  */
 
 /**
- * External dependencies
+ * External Dependencies
  */
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -32,21 +32,21 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-// Use Handlebars to render dynamic pages
+// Use Handlebars to render dynamic pages.
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-// Set user based on a mock "session"
+// Set user based on a mock "session".
 app.use((req, res, next) => {
-  const sid = req.cookies[sessionCookie];  // Get `sid` from cookies
+  const sid = req.cookies[sessionCookie];  // Get `sid` from cookies.
   if (sid && sessions[sid]) {
-    req.user = sessions[sid] // If session exists in memory, retrieve user details
+    req.user = sessions[sid] // If session exists in memory, retrieve user details.
   }
   next();
 });
 
-// If a click-through link was used without the user being signed in to the partner application, redirect them to a
-// login page with the click-through link parameters included
+// If a click-through link was used and the user isn't signed in to the partner application, redirect them to a
+// sign in page with the click-through link parameters included.
 app.use("/embed-application.html", (req, res, next) => {
   const stringifyQueryParams = (paramsObj) => Object.entries(paramsObj)
       .reduce((paramString, [key, val]) => (paramString ? '&' : '?') + `${key}=${val}`, '')
@@ -66,20 +66,20 @@ app.use(express.static('public'));
  * Routes
  */
 // Create a user session based on the login information.
-// The user is immediately redirected to the `redirect` URL provided
+// The user is immediately redirected to the `redirect` URL provided.
 app.post('/signin/:redirect', (req, res, next) => {
-  // Check for any click-through parameters included in this sign in request
+  // Check for any click-through parameters included in this sign in request.
   const queryParams = req.body.queryParams ? '?' + req.body.queryParams : ''
   delete req.body.queryParams
 
   // Create user session
-  const user = req.body;            // Get user details from POST request body
-  const sid = crypto.randomUUID();  // Create session id
-  sessions[sid] = user;             // Record session in memory
+  const user = req.body;            // Get user details from POST request body.
+  const sid = crypto.randomUUID();  // Create session ID.
+  sessions[sid] = user;             // Record session in memory.
 
   // Set session cookie. `sameSite: none` is required for the auto-provision workflow. See comments for `handleAutoprovisionSucess()` in `embed-application.js` for more information.
   res.cookie(sessionCookie, sid, { sameSite: "none", secure: true });
-  // Add the redirect URL provided by `index.html` and the query params provided by the click-through link
+  // Add the redirect URL provided by `index.html` and the query params provided by the click-through link.
   res.redirect('../' + req.params.redirect + queryParams);
 });
 
@@ -90,15 +90,15 @@ app.post('/signin/:redirect', (req, res, next) => {
 // for more details.
 app.get('/connectVisierSession', postSamlResponseToVisier);
 
-// Shows an error page when the Visier Solution cannot be loaded
+// Shows an error page when the Visier Solution cannot be loaded.
 app.get('/visierError', (req, res) => {
   res.render('error', { message: "Sorry, Visier is currently unavailable." });
 });
 
 /**
- * Error handling
+ * Error Handling
  */
-// catch 404 and forward to error handler
+// Catch 404 and forward to error handler.
 app.use(function(req, res, next) {
   next({ statusCode: 404, message: `Route not found: ${req.url}`});
 });
@@ -110,7 +110,7 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = err;
 
-  // render the error page
+  // Render the error page.
   res.status(err.status || 500);
   res.render('error');
 });

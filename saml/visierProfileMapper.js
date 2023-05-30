@@ -3,7 +3,7 @@
  */
 
 /**
- * This file contains logic required by the SAML library (`samlp`) used to map `user` objects to SAML claims.
+ * This file contains logic required by the SAML library (`samlp`) to map `user` objects to SAML claims.
  * See `saml-log.xml` for the most recent SAML Response sent by this server.
  */
 
@@ -16,7 +16,7 @@ function VisierProfileMapper (pu) {
 
 // Convert user attributes to SAML claims.
 VisierProfileMapper.prototype.getClaims = function() {
-    // In addition to the 3 claims provided here, Visier requires the "NameID" claim, provided by `getNameIdentifier` below
+    // In addition to the 3 claims provided here, Visier requires the NameID claim provided by `getNameIdentifier` below.
     return {
         userEmail: this._pu.userEmail || this._pu.id,
         displayName: this._pu.displayName || this._pu.id,

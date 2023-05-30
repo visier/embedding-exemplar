@@ -3,42 +3,42 @@
 -->
 
 <!--
-    This page embeds Visier charts into a partner's application. This document has three sections that correspond to
-    the three elements required to embed a Visier chart:
+    This document embeds Visier visualizations into a partner's application. This document has three sections that correspond to
+    the three elements required to embed a Visier visualization:
         1. Create containers
-            - The parent application must create a container (i.e., `div`) for each of the Visier charts it embeds.
+            - The parent application must create a container (that is, `div`) for each of the Visier visuals it embeds.
               Each container must have a unique `id`.
-        2. Embed charts
-            - Copy (or modify) the embedding script provided by clicking on the "embed" action on an Analysis.
+        2. Embed visuals
+            - Copy (or modify) the embedding script provided by clicking on the "Embed" action on an analysis.
         3. Add message handlers
             - Handle messages emitted by Visier's scripts.
 -->
 
 <!--
     ****************************** 1. Create containers ****************************************************************
-    The partner application creates a container (i.e., `div`) for each of the charts it embeds. Each chart has a unique
-    id. Here, we use `#chart-container-1`, `#chart-container-2`, and `#chart-container-3`.
+    The partner application creates a container (that is, `div`) for each of the visualization it embeds. Each visual has a unique
+    ID. Here, we use `#chart-container-1`, `#chart-container-2`, and `#chart-container-3`.
 -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Embed A Visier Chart</title>
+    <title>Embed A Visier Visualization</title>
     <link type="text/css" rel="stylesheet" href="main.css">
 </head>
 <body>
 <main>
     <div id="page-container">
         <div id="title-container">
-            <h1 class="title">Embedded Charts</h1>
+            <h1 class="title">Embedded Visuals</h1>
             <h3 class="subtitle">The partner application embeds selected Visier visuals into its own content.</h3>
         </div>
         <div id="content-container">
             <div class="chart-containers">
                 <!--
-                    These will eventually contain the Visier charts. Content inside of the container will be replaced
-                    by the chart when it renders.
+                    These will eventually contain the Visier visualizations. Content inside of the container will be replaced
+                    by the visual when it renders.
                  -->
                 <div class="chart-container center-both" id="chart-container-1"><img src="loading.gif" /></div>
                 <div class="chart-container center-both" id="chart-container-2"><img src="loading.gif" /></div>
@@ -48,24 +48,24 @@
     </div>
     <script id="visier-embedding-script">
         /**
-         * ****************************************** 2. Embed charts **************************************************
-         * This section is provided by Visier. Click on the "embed" action of an analysis you wish to embed and copy the
-         * script it provides. If you want to embed more than one chart, as we do here, set `visierConfig` to the list
-         * of charts you will embed.
+         * ****************************************** 2. Embed visuals **************************************************
+         * This section is provided by Visier. Click "Embed" in an analysis that you wish to embed and copy the
+         * script it provides. If you want to embed more than one visual, as we do here, set `visierConfig` to the list
+         * of visuals you will embed.
          */
-        // Included for reference only: This is the configuration for embedding a single chart.
+        // Included for reference only: This is the configuration for embedding a single visualization.
         const visierConfigSingleChart = {
             loginUrl: "https://{{vanityName}}.visier.com/VServer/auth/embedded",
-            idpUrl: "https://127.0.0.1/connectVisierSession", // Required if `enableHiddenSession` is true
+            idpUrl: "https://127.0.0.1/connectVisierSession", // Required if `enableHiddenSession` is true.
             enableHiddenSession: true,
             contentId: "bbfdf21b-1f37-4504-8397-ac97043555f1",
             containerId: "chart-container-1"
         };
 
-        // The configuration for embedding multiple charts.
+        // The configuration for embedding multiple visualizations.
         const visierConfig = {
             loginUrl: "https://{{vanityName}}.visier.com/VServer/auth/embedded",
-            idpUrl: "https://127.0.0.1/connectVisierSession", // Required only if `enableHiddenSession` is true
+            idpUrl: "https://127.0.0.1/connectVisierSession", // Required if `enableHiddenSession` is true.
             enableHiddenSession: true,
             charts: [{
                 contentId: "bbfdf21b-1f37-4504-8397-ac97043555f1",
@@ -79,7 +79,7 @@
             }],
         };
 
-        // This is part of the content copied from Visier's "embed" action on an Analysis. It will be the same for any
+        // This is part of the content copied after clicking the "Embed" button in an analysis. It will be the same for any
         // and all analyses you embed.
         (function(w, d, t, s, c, v, e, x) {
             w['VisierEmbedder'] = v;
@@ -96,7 +96,7 @@
 
         /**
          * ****************************************** 3. Add message handlers ******************************************
-         * Here, we simply log messages emitted by Visier and provide a generic error message in the container. A
+         * Here, we log messages emitted by Visier and provide a generic error message in the container. A
          * production application will have more sophisticated error handling.
          */
         function handleMessage(messageType) {
