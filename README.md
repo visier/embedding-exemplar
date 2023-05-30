@@ -51,6 +51,7 @@ To embed Visier, the partner application must include three elements:
 Visier is now successfully embedded in the partner application! Be aware that there are other workflows that may take place, such as when an error occurs or when a new user is auto-provisioned. See `embed-application.js` for documentation and implementation of other workflows.
 
 For more detailed documentation on embedding Visier, see the Visier Integration Guide.
+To access the Visier Integration Guide, please reach out to your Visier Implementation Consultant.
 
 # Application Structure
 The directory hierarchy is structured as follows:
