@@ -46,6 +46,12 @@ div#title-container {
     box-shadow: 0px 1px 1px 1px lightgrey;
 }
 
+div#navigation-bar {
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 16px;
+}
+
 h1.title, h3.subtitle {
     text-align: center;
     display: inline;
@@ -71,7 +77,7 @@ div#content-container {
 }
 
 /* Contains Visier app and session frames */
-div#visier {
+div#visier-wrapper {
     flex-grow: 1;
     display: flex;
     flex-flow: row nowrap;
@@ -161,10 +167,6 @@ iframe#visier-app {
     width: 100%;
     height: 100%;
     border: none;
-}
-
-#visier-session {
-    display: none;
 }
 
 div.chart-containers {
