@@ -66,7 +66,7 @@ npm run generate-certs country state city organization_name organization_url
 
 # Configuration
 ## In this repo
-You must configure a URL in this application to values specific for your organization's sandbox tenant. Obtain the vanity URL for your sandbox tenant from your Visier Implementation Consultant. This URL will look similar to `https://example.visier.com`. Replace `{{vanityName}}` in the following locations:
+You must configure a URL in this application to values specific for your organization's sandbox tenant. Obtain the vanity URL for your sandbox tenant from your Visier Implementation Consultant. This URL will look similar to `https://example.visier.com`. Replace `{{vanityUrl}}` in the following locations:
 1. In `./config.js`, replace for `saml.visierAcsUrl`
    1. SAML assertions must be sent to this URL to create Visier user sessions.
 2. In `./public/embed-application.js` and `./public/embed-chart.html`, replace for `visierConfig.loginUrl`
