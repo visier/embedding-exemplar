@@ -17,18 +17,11 @@
     This document embeds Visier visualizations into a partner's application. This document has three sections that correspond to
     the three elements required to embed a Visier visualization:
         1. Create containers
-            - The parent application must create a container (that is, `div`) for each of the Visier visuals it embeds.
-              Each container must have a unique `id`.
-        2. Embed visuals
-            - Copy (or modify) the embedding script provided by clicking on the "Embed" action on an analysis.
-        3. Add message handlers
-            - Handle messages emitted by Visier's scripts.
--->
-
-<!--
-    ****************************** 1. Create containers ****************************************************************
-    The partner application creates a container (that is, `div`) for each of the visualization it embeds. Each visual has a unique
-    ID. Here, we use `#chart-container-1`, `#chart-container-2`, and `#chart-container-3`.
+        2. Bootstrap Visier
+        3. Manage Partner and Visier Sessions
+        4. Add event handlers
+        5. Call embedCharts
+    For more information about embedding, see https://docs.visier.com/embedded/Analytics/analyses/analysis-embed.htm.
 -->
 
 <!DOCTYPE html>
@@ -45,6 +38,9 @@
             <h1 class="title">Embedded Visuals</h1>
             <h3 class="subtitle">The partner application embeds selected Visier visuals into its own content.</h3>
         </div>
+        <div id="navigation-bar">
+            <button id="logout" onclick="cleanUpVisierSession()">Logout</button>
+        </div>
         <div id="content-container">
             <div class="chart-containers">
                 <!--
@@ -59,39 +55,44 @@
     </div>
     <script id="visier-embedding-script">
         /**
-         * ****************************************** 2. Embed visuals **************************************************
-         * This section is provided by Visier. Click "Embed" in an analysis that you wish to embed and copy the
-         * script it provides. If you want to embed more than one visual, as we do here, set `visierConfig` to the list
-         * of visuals you will embed.
+         * ****************************************************************************************
+         * 1. Create containers
+         *    The partner application creates a container, such as `div`, for each of the visuals
+         *    it embed. Each container has a unique ID.
+         * ****************************************************************************************
          */
-        // Included for reference only: This is the configuration for embedding a single visualization.
-        const visierConfigSingleChart = {
-            loginUrl: "https://{{vanityName}}.visier.com/VServer/auth/embedded",
-            idpUrl: "https://127.0.0.1/connectVisierSession", // Required if `enableHiddenSession` is true.
-            enableHiddenSession: true,
-            contentId: "bbfdf21b-1f37-4504-8397-ac97043555f1",
-            containerId: "chart-container-1"
-        };
 
-        // The configuration for embedding multiple visualizations.
+        // In the HTML above, we created 3 divs with these IDs.
+        // We will use the IDs below when we call `embedCharts`.
+        const chartContainer1 = "chart-container-1";
+        const chartContainer2 = "chart-container-2";
+        const chartContainer3 = "chart-container-3";
+
+
+        /**
+         * ****************************************************************************************
+         * 2. Bootstrap Visier
+         *    This section is provided in the Visier application when you click to embed an
+         *    analysis. Copy and modify as desired.
+         *    For more information, see Embed a Visier Visualization
+         *    (https://docs.visier.com/embedded/Analytics/analyses/analysis-embed.htm).
+         * ****************************************************************************************
+         */
+
+        // Set up the `visierConfig`. The `visierConfig` bootstraps the SDK.
         const visierConfig = {
-            loginUrl: "https://{{vanityName}}.visier.com/VServer/auth/embedded",
-            idpUrl: "https://127.0.0.1/connectVisierSession", // Required if `enableHiddenSession` is true.
-            enableHiddenSession: true,
-            charts: [{
-                contentId: "bbfdf21b-1f37-4504-8397-ac97043555f1",
-                containerId: "chart-container-1"
-            }, {
-                contentId: "b16a1ac4-3b92-47e9-b22b-3bf00d2fa829",
-                containerId: "chart-container-2"
-            }, {
-                contentId: "bbfdf21b-1f37-4504-8397-ac97043555f1",
-                containerId: "chart-container-3"
-            }],
-        };
+                // Set the URL to log into Visier.
+                loginUrl: "https://{{vanityName}}.visier.com/hr/auth/embedded?tenant",
 
-        // This is part of the content copied after clicking the "Embed" button in an analysis. It will be the same for any
-        // and all analyses you embed.
+                // Optional: Set the URL for your IDP. This is required if `enableHiddenSession` is true.
+                // The IdP URL that handles hidden sessions and posts valid SAML assertions.
+                idpUrl: "https://127.0.0.1/connectVisierSession"
+            };
+
+        // Copy the following function and use it to embed visualizations from Visier into your
+        // application. This function is the same for any and all embedded visualizations. The
+        // function fetches Visier's SDK, adds the SDK as a script element, and makes Visier's
+        // embedding API available through a `visier` function.
         (function(w, d, t, s, c, v, e, x) {
             w['VisierEmbedder'] = v;
             w[v] = w[v] || function() {
@@ -102,29 +103,198 @@
             e.async = true;
             e.src = c.loginUrl.split("/auth/embedded")[0] + s;
             x.parentNode.insertBefore(e, x)
-        })(window, document, 'script', '/assets/embedded/webAssets/sdk.js', visierConfig, 'visier');
-        visier('bootstrap', visierConfig); // "bootstrap" must always be the first call to `visier()`.
+        })(window, document, 'script', '/assets/embedded/webAssets/sdk.v2.js', visierConfig, 'visier');
+
+        // Bootstrap must always be the first call to `visier()`.
+        visier('bootstrap', visierConfig, function(app) {
+            attachSessionEventHandlers(app);
+            attachErrorEventHandlers(app);
+            attachInfoEventHandlers(app);
+            embed(app);
+        });
+
 
         /**
-         * ****************************************** 3. Add message handlers ******************************************
-         * Here, we log messages emitted by Visier and provide a generic error message in the container. A
-         * production application will have more sophisticated error handling.
+         * ****************************************************************************************
+         * 3. Manage Partner and Visier Sessions
+         * ****************************************************************************************
          */
-        function handleMessage(messageType) {
-            return function(data) {
-                if (messageType === 'ERROR' && data.source) {
-                    const container = document.getElementById(data.source);
-                    container.innerHTML = "Error loading Visier chart. See console for details.";
+
+        /**
+         * Clean up the Visier user session.
+         * The partner application should call this method when it ends its own user session.
+         */
+        function cleanUpVisierSession() {
+            // Trigger clean up through the API.
+            console.log("Triggered Visier session cleanup");
+            visier("trigger", "PARENT_SESSION_CLEANUP", function (msg) {
+                if (msg) {
+                    handleError(msg);
+                } else {
+                    console.log("Visier session cleaned up successfully. Navigate back to sign-in page");
+                    // Navigate back to the partner sign-in page.
+                    location.assign('../');
                 }
-                const source = data.source ? "[" + data.source + "] " : "";
-                console.log(`${messageType} ${source}${JSON.stringify(data || "No data provided")}`);
-            }
+            });
         }
 
-        visier('on', 'info', handleMessage('INFO'));
-        visier('on', 'error', handleMessage('ERROR'));
-        visier('on', 'session', handleMessage('SESSION'));
-        visier('on', 'bootstrapped', handleMessage('BOOTSTRAP'));
+        /**
+         * Add event handlers for session events
+         */
+        function attachSessionEventHandlers(embeddingApp) {
+            embeddingApp.on("session", function(msg) {
+                switch (msg?.code?.toUpperCase()) {
+                    case "SESSION_ERROR":
+                        /**
+                         * Scenarios in which this message may be emitted include, but are not limited to:
+                         *   1. The SSO configuration for the specified Visier tenant is incorrect or disabled.
+                         *   2. Auto-provisioning is disabled and the user does not have a Visier profile.
+                         *   3. The `tenantCode` claim in the SAML assertion was invalid.
+                         *   4. The SAML assertion sent to Visier's ACS URL was malformed
+                         *
+                         * A partner application must handle this event gracefully, as it represents a blocked user flow.
+                         */
+                        handleError("The user could not be logged into Visier.", msg);
+                        break;
+                    case "SESSION_ESTABLISHED":
+                        /**
+                         * This message is emitted once an authenticated session has been established with Visier for the current user.
+                         */
+                        console.log("Session established successfully!");
+                        break;
+                    case "USER_AUTO_PROVISION_FAILED":
+                        /**
+                         * A partner application must handle this event gracefully, as it represents a blocked user flow.
+                         */
+                        handleError("Auto-provisioning failed.", msg);
+                        break;
+                    case "USER_AUTO_PROVISION_SUCCESS":
+                        /**
+                         * This message is emitted when a new Visier user is created automatically for the current user.
+                         * Auto-provisioning must be enabled in your Visier tenant's settings under "Tenant Single Sign-On"
+                         * and it must be the first time this user is using Visier.
+                         */
+                        console.log("User successfully auto-provisioned!");
+                        break;
+                    default:
+                        console.log("Received session message from Visier", msg);
+                        break;
+                }
+            });
+        }
+
+
+        /**
+         * ****************************************************************************************
+         * 4. Add event handlers
+         *    Here, we log messages emitted by Visier and provide a generic error message in the
+         *    container. A production application will have more sophisticated error handling.
+         * ****************************************************************************************
+         */
+
+        /**
+         * Add event handlers for session events
+         */
+        function attachErrorEventHandlers(embeddingApp) {
+            embeddingApp.on("error", function(msg) {
+                // Refer to the following list for common error cases.
+                switch (msg?.code) {
+                    // Chart config is invalid. The chart field in the config should be an array of objects.
+                    case "CONFIG_INVALID":
+                    // The container to embed the content in cannot be found.
+                    case "CONTAINER_MISSING":
+                    // No filters were defined when invoking dynamic filters.
+                    case "FILTERS_NOT_DEFINED":
+                    // Chart data was not present or incorrect type was found.
+                    case "CHART_DATA_ERROR":
+                    // The given analysis could not be found.
+                    // The ID may be invalid, it may have been deleted, or the user does not have access.
+                    case "CANNOT_FIND_ANALYSIS":
+                    // Could not find a valid visual in the provided analysis for embedding.
+                    case "CANNOT_FIND_CONTENT":
+                    // Cannot embed content. Feature flag disabled.
+                    case "INVALID_COMMAND":
+                    // No driving analytic object found.
+                    case "INVALID_FILTER_MEMBER":
+                    // An invalid filter was found. The filter syntax may be incorrect.
+                    case "UNSUPPORTED_FILTER_TYPE":
+                    // The provided Visier application URL is not valid.
+                    case "INVALID_APP_URL":
+                    // Occurs in the event that any maintenance is being performed.
+                    case "VISIER_APP_DOWN":
+                    default:
+                        handleError(msg);
+                        break;
+                }
+            });
+        }
+
+        /**
+         * Add event handlers for info events
+         */
+        function attachInfoEventHandlers(embeddingApp) {
+            embeddingApp.on("info", function(msg) {
+                switch (msg?.code) {
+                    // The embedded chart is ready to accept dynamic context filters.
+                    case "EMBEDDED_CHART_READY_FOR_FILTERS":
+                    // The embedded chart has finished rendering.
+                    case "EMBEDDED_CHART_RENDERED":
+                    default:
+                        console.info(msg);
+                        break;
+                }
+            });
+        }
+
+
+        /**
+         * ****************************************************************************************
+         * 5. Call embedCharts
+         * ****************************************************************************************
+         */
+
+        function embed(embeddingApp) {
+            const chartConfigs = [
+                {
+                    contentId: "bbfdf21b-1f37-4504-8397-ac97043555f1",
+                    containerId: chartContainer1
+                }, {
+                    contentId: "b16a1ac4-3b92-47e9-b22b-3bf00d2fa829",
+                    containerId: chartContainer2
+                }, {
+                    contentId: "bbfdf21b-1f37-4504-8397-ac97043555f1",
+                    containerId: chartContainer3,
+                    // Optional: Specify filters. For more information, see Pass Filters with
+                    // Embedded Visier Visualizations (https://docs.visier.com/embedded/Analytics/analyses/analysis-embed-filters.htm).
+                    filters: [
+                        {
+                            includeExclude: {
+                                hierarchyId: "Job_Name",
+                                subjectReferences: ["Employee"],
+                                includedMembers: ["[Hierarchy].[Plant Operator]", "[Hierarchy].[Plant Supervisor]"],
+                                excludedMembers: []
+                            }
+                        }
+                    ]
+                }
+            ];
+            embeddingApp.embedCharts(chartConfigs);
+        }
+
+
+        /**
+         * ****************************************************************************************
+         * Helper methods
+         * ****************************************************************************************
+         */
+
+        function handleError(msg) {
+            const container = document.getElementById(msg?.source);
+            if (container) {
+                container.innerHTML = "Error loading Visier chart. See console for details.";
+            }
+            console.error(`Source: ${msg?.source ?? "undefined"}`, msg?.code, msg?.message);
+        }
     </script>
 </main>
 </body>
