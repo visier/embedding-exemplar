@@ -87,13 +87,24 @@
                     <button class="navigation-link" id="keep-visier-session-alive" onclick="keepVisierSessionAlive()">Keep Visier Session Alive</button>
                 </div>
             </div>
-            <div id="visier-wrapper">
+            <div id="visier">
                 <!--
-                    This iframe embeds the Visier application. The `src` attribute will be set by the API via
-                    calls to `embedApp("visier-app", optionalUrl)`, or `trigger("NAVIGATION", url)`.
+                    This iframe embeds the Visier Application. The `src` attribute will be set once the session is established
+                    And the application section URLs or shared link prefix have been obtained.
+
+                    See comments at head of file for more details.
                  -->
                 <iframe id="visier-app" style="display: none"></iframe>
                 <img id="visier-app-loading" src="loading.gif" />
+                <!--
+                    This iframe establishes an authenticated session with Visier for the current user.
+                    It sends a POST request (by way of preloaded form) with a SAML assertion to Visier's
+                    assertion consumer service (ACS) URL. See `saml-log.xml`  for the most recent
+                    SAML Response sent by this server.
+
+                    See comments at head of file for more details.
+                -->
+                <iframe id="visier-session" src="./connectVisierSession" style="display: none"></iframe>
             </div>
         </div>
     </div>
