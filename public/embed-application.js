@@ -41,11 +41,15 @@ const visierIframeId = "visier-app";
  * Globals
  */
 const visierGlobals = {
+    /**
+     * SetenabledDebugLogging to true to add extra debug logging for local development. Disabled by default.
+     */
+    enabledDebugLogging: false,
     isAppLoaded: false,
     keepSessionAliveTimer: undefined, // Set while bootstrapping Visier.
     appIframe: document.getElementById(visierIframeId),
     appLoadingImg: document.getElementById('visier-app-loading')
-}
+};
 
 
 /**
@@ -85,8 +89,9 @@ visier('bootstrap', visierConfig, async function(app) {
     attachSessionEventHandlers(app);
     attachErrorEventHandlers(app);
     attachInfoEventHandlers(app);
-    embed(app);
+    attachDebugEventHandlers(app);
     await buildVisierNavigationMenu(app);
+    embed(app);
 });
 
 
@@ -102,7 +107,6 @@ visier('bootstrap', visierConfig, async function(app) {
  */
 function keepVisierSessionAlive() {
     visier("trigger", "PARENT_SESSION_ALIVE");
-    console.log("Triggered PARENT_SESSION_ALIVE.");
 }
 
 /**
@@ -237,6 +241,18 @@ function attachInfoEventHandlers(embeddingApp) {
                 break;
         }
     });
+}
+
+/**
+ * Add event handlers for debug events.
+ * These are short messages to help better facilitate joint debugging between teams.
+ */
+function attachDebugEventHandlers(embeddingApp) {
+    if (visierGlobals.enabledDebugLogging) {
+        embeddingApp.on("debug", function(msg) {
+            console.debug("Received debug message from Visier:", msg);
+        });
+    }
 }
 
 

@@ -68,6 +68,12 @@
         const chartContainer2 = "chart-container-2";
         const chartContainer3 = "chart-container-3";
 
+        const visierGlobals = {
+            /**
+             * Set enabledDebugLogging to true to add extra debug logging for local development. Disabled by default.
+             */
+            enabledDebugLogging: false
+        };
 
         /**
          * ****************************************************************************************
@@ -110,6 +116,7 @@
             attachSessionEventHandlers(app);
             attachErrorEventHandlers(app);
             attachInfoEventHandlers(app);
+            attachDebugEventHandlers(app);
             embed(app);
         });
 
@@ -244,6 +251,18 @@
                         break;
                 }
             });
+        }
+
+        /**
+         * Add event handlers for debug events.
+         * These are short messages to help better facilitate joint debugging between teams.
+         */
+        function attachDebugEventHandlers(embeddingApp) {
+            if (visierGlobals.enabledDebugLogging) {
+                embeddingApp.on("debug", function(msg) {
+                    console.debug("Received debug message from Visier:", msg);
+                });
+            }
         }
 
 
