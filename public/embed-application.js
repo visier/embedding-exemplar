@@ -57,9 +57,9 @@ const visierGlobals = {
 // Set up the `visierConfig`. The `visierConfig` bootstraps the SDK.
 const visierConfig = {
     // Set the URL to use for logging into Visier.
-    loginUrl: "https://{{vanityName}}.visier.com/hr/auth/embedded?tenant",
+    visierUrl: "https://{{vanityName}}.visier.com/hr",
 
-    // Optional: Set the URL for your IDP. This is required if `enableHiddenSession` is true.
+    // Optional: Set the URL for your IDP.
     // The IdP URL that handles hidden sessions and posts valid SAML assertions.
     idpUrl: "https://127.0.0.1/connectVisierSession"
 };
@@ -76,7 +76,7 @@ const visierConfig = {
     e = d.createElement(t);
     x = d.getElementsByTagName(t)[0];
     e.async = true;
-    e.src = c.loginUrl.split("/auth/embedded")[0] + s;
+    e.src = c.visierUrl ? c.visierUrl + s : (c.loginUrl ? c.loginUrl.split("/auth/embedded")[0] + s : s);
     x.parentNode.insertBefore(e, x)
 })(window, document, 'script', '/assets/embedded/webAssets/sdk.v2.js', visierConfig, 'visier');
 
