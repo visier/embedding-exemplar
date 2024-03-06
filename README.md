@@ -27,7 +27,7 @@ To embed Visier, the partner application must include three elements:
    
 ## Workflow
  As an example of how these three components work together to embed Visier, consider the sequence of events that occurs when Visier is successfully embedded in this application for an existing Visier user:
- 1. The JavaScript code fetches and bootstraps the Visier SDK with a `visierConfig` containing the `loginUrl`.
+ 1. The JavaScript code fetches and bootstraps the Visier SDK with a `visierConfig` containing the `visierUrl`.
  2. The JavaScript code calls embedApp, passing in the ID for the iframe that will house Visier (here, `#visier-app`).
  3. The API kicks off authenticating in the background on a hidden session iframe. Upon successful authentication, it receives authentication tokens.
  4. The API sets up a service worker and passes the authentication tokens to it. This service worker intercepts any requests from the embedded app to Visier servers and attaches the tokens as headers. With the headers, the requests can be authenticated properly.
@@ -69,7 +69,7 @@ npm run generate-certs country state city organization_name organization_url
 You must configure a URL in this application to values specific for your organization's sandbox tenant. Obtain the vanity URL for your sandbox tenant from your Visier Implementation Consultant. This URL will look similar to `https://example.visier.com`. Replace `{{vanityName}}` in the following locations:
 1. In `./config.js`, replace for `saml.visierAcsUrl`
    1. SAML assertions must be sent to this URL to create Visier user sessions.
-2. In `./public/embed-application.js` and `./public/embed-chart.html`, replace for `visierConfig.loginUrl`
+2. In `./public/embed-application.js` and `./public/embed-chart.html`, replace for `visierConfig.visierUrl`
    1. Used to load the SDK and authenticate the user.
 
 ## Change the Hostname for the Exemplar App

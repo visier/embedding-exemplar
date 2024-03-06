@@ -52,6 +52,12 @@
                 <div class="chart-container center-both" id="chart-container-3"><img src="loading.gif" /></div>
             </div>
         </div>
+        <div id="error-modal">
+            <div class="error-modal-wrapper">
+                <div class="modal-close" onclick="hideErrorModal()">&times;</div>
+                <div id="error-modal-content"></div>
+            </div>
+        </div>
     </div>
     <script id="visier-embedding-script">
         /**
@@ -68,6 +74,12 @@
         const chartContainer2 = "chart-container-2";
         const chartContainer3 = "chart-container-3";
 
+        const visierGlobals = {
+            /**
+             * Set enableDebugLogging to true to add extra debug logging for local development. Disabled by default.
+             */
+            enableDebugLogging: false
+        };
 
         /**
          * ****************************************************************************************
@@ -81,13 +93,13 @@
 
         // Set up the `visierConfig`. The `visierConfig` bootstraps the SDK.
         const visierConfig = {
-                // Set the URL to log into Visier.
-                loginUrl: "https://{{vanityName}}.visier.com/hr/auth/embedded?tenant",
+            // Set the URL to log into Visier.
+            visierUrl: "https://{{vanityName}}.visier.com/hr",
 
-                // Optional: Set the URL for your IDP. This is required if `enableHiddenSession` is true.
-                // The IdP URL that handles hidden sessions and posts valid SAML assertions.
-                idpUrl: "https://127.0.0.1/connectVisierSession"
-            };
+            // Optional: Set the URL for your IDP.
+            // The IdP URL that handles hidden sessions and posts valid SAML assertions.
+            idpUrl: "https://127.0.0.1/connectVisierSession"
+        };
 
         // Copy the following function and use it to embed visualizations from Visier into your
         // application. This function is the same for any and all embedded visualizations. The
@@ -101,7 +113,7 @@
             e = d.createElement(t);
             x = d.getElementsByTagName(t)[0];
             e.async = true;
-            e.src = c.loginUrl.split("/auth/embedded")[0] + s;
+            e.src = c.visierUrl ? c.visierUrl + s : (c.loginUrl ? c.loginUrl.split("/auth/embedded")[0] + s : s);
             x.parentNode.insertBefore(e, x)
         })(window, document, 'script', '/assets/embedded/webAssets/sdk.v2.js', visierConfig, 'visier');
 
@@ -110,6 +122,7 @@
             attachSessionEventHandlers(app);
             attachErrorEventHandlers(app);
             attachInfoEventHandlers(app);
+            attachDebugEventHandlers(app);
             embed(app);
         });
 
@@ -144,6 +157,18 @@
         function attachSessionEventHandlers(embeddingApp) {
             embeddingApp.on("session", function(msg) {
                 switch (msg?.code?.toUpperCase()) {
+                    case "EJECT_SESSION":
+                        /**
+                         * This message is emitted if the user opens another tab that embeds content for a different user or tenant.
+                         * The session on this tab will be cleaned up. Any continued attempts to use this session will result in
+                         * unexpected behavior such as showing data for the other user or tenant.
+                         *
+                         * A partner application must handle this event gracefully and prevent further embedding interactions
+                         * such as by removing the iframes or filter selectors.
+                         */
+                        showErrorModal("User was logged out.");
+                        hideCharts();
+                        break;
                     case "SESSION_ERROR":
                         /**
                          * Scenarios in which this message may be emitted include, but are not limited to:
@@ -199,6 +224,27 @@
             embeddingApp.on("error", function(msg) {
                 // Refer to the following list for common error cases.
                 switch (msg?.code) {
+                    /**
+                     * If the user opens a second tab that embeds content for a different user or tenant, this error is emitted
+                     * in the case of unexpected errors while performing cleanup on the first tab.
+                     *
+                     * The partner application can clean up the other session and attempt embedding once again.
+                     */
+                    case "FAILED_TO_EJECT_PREVIOUS_SESSION":
+                        showErrorModal("The user is logged into another tenant on another tab or window.");
+                        hideCharts();
+                        break;
+                    /**
+                     * These timeout errors emit if there are unexpected issues with the authentication set up or if the set up took
+                     * longer than expected, such as due to network latency. Possible causes include:
+                     *  - The IdP failed to authenticate the user. Check the Network tab.
+                     *  - The service worker failed to load. Look for errors in the Console tab and turn on enableDebugLogging.
+                     */
+                    case "SW_LOADER_TIMEOUT":
+                    case "SW_LOADING_TIMEOUT":
+                        showErrorModal("Unexpected error loading the embedded app. Try extending the requestTimeout in case of network latency.");
+                        hideCharts();
+                        break;
                     // Chart config is invalid. The chart field in the config should be an array of objects.
                     case "CONFIG_INVALID":
                     // The container to embed the content in cannot be found.
@@ -244,6 +290,18 @@
                         break;
                 }
             });
+        }
+
+        /**
+         * Add event handlers for debug events.
+         * These are short messages to help better facilitate joint debugging between teams.
+         */
+        function attachDebugEventHandlers(embeddingApp) {
+            if (visierGlobals.enableDebugLogging) {
+                embeddingApp.on("debug", function(msg) {
+                    console.debug("Received debug message from Visier:", msg);
+                });
+            }
         }
 
 
@@ -294,6 +352,24 @@
                 container.innerHTML = "Error loading Visier chart. See console for details.";
             }
             console.error(`Source: ${msg?.source ?? "undefined"}`, msg?.code, msg?.message);
+        }
+
+        function showErrorModal(message) {
+            const modal = document.getElementById("error-modal");
+            modal.style.display = "flex";
+            document.getElementById("error-modal-content").innerText = message;
+        }
+
+        function hideErrorModal() {
+            const modal = document.getElementById("error-modal");
+            modal.style.display = "none";
+        }
+
+        function hideCharts() {
+            const chartContainers = document.getElementsByClassName("chart-container");
+            for (let i = 0; i < chartContainers.length; i++) {
+                chartContainers[i].style.display = "none";
+            }
         }
     </script>
 </main>
