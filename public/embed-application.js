@@ -42,9 +42,9 @@ const visierIframeId = "visier-app";
  */
 const visierGlobals = {
     /**
-     * SetenabledDebugLogging to true to add extra debug logging for local development. Disabled by default.
+     * Set enableDebugLogging to true to add extra debug logging for local development. Disabled by default.
      */
-    enabledDebugLogging: false,
+    enableDebugLogging: false,
     isAppLoaded: false,
     keepSessionAliveTimer: undefined, // Set while bootstrapping Visier.
     appIframe: document.getElementById(visierIframeId),
@@ -61,11 +61,11 @@ const visierGlobals = {
 // Set up the `visierConfig`. The `visierConfig` bootstraps the SDK.
 const visierConfig = {
     // Set the URL to use for logging into Visier.
-    visierUrl: "https://{{vanityName}}.visier.com/hr",
+    visierUrl: `${visierUrl}/VServer`,
 
     // Optional: Set the URL for your IDP.
     // The IdP URL that handles hidden sessions and posts valid SAML assertions.
-    idpUrl: "https://127.0.0.1/connectVisierSession"
+    idpUrl: `${hostname}:${port}/connectVisierSession`
 };
 
 // Copy the following function and use it to embed the full Visier application into your
@@ -86,6 +86,9 @@ const visierConfig = {
 
 // Bootstrap must always be the first call to `visier()`.
 visier('bootstrap', visierConfig, async function(app) {
+    visier("on", "debug", function (msg) {
+        console.debug("DEBUG:", msg);
+    });
     attachSessionEventHandlers(app);
     attachErrorEventHandlers(app);
     attachInfoEventHandlers(app);
@@ -132,7 +135,21 @@ function cleanUpVisierSession() {
  */
 function attachSessionEventHandlers(embeddingApp) {
     embeddingApp.on("session", function(msg) {
+        console.log("SESSION: ", msg);
         switch (msg?.code?.toUpperCase()) {
+            case "EJECT_SESSION":
+                /**
+                 * This message is emitted if another tab is opened which embeds content for a different user or tenant.
+                 * The session on this tab will be cleaned up. Any continued attempts to use this session will result in
+                 * unexpected behavior such as showing data for the other user or tenant.
+                 *
+                 * A partner application must handle this event gracefully and prevent further embedding interactions
+                 * such as by removing the iframes or disabling navigation actions.
+                 */
+
+                renderVisierErrorMessage("The user logged into another tenant on another tab or window.");
+                hideNavigationSection();
+                break;
             case "SESSION_ERROR":
                 /**
                  * Scenarios in which this message may be emitted include, but are not limited to:
@@ -181,7 +198,10 @@ function attachSessionEventHandlers(embeddingApp) {
                  * Note: Sending the Visier application iframe `PARENT_SESSION_ALIVE` messages, as in `keepVisierSessionAlive()`,
                  * prevents the Visier session from expiring. Best practice is to handle expired Visier sessions nonetheless.
                  */
-                // Call embedApp to restart the process again, including authentication.
+                // Call `embeddingApp.bootstrapSession();` to create a new session in the background.
+                // Once complete, new requests will pick up the new authentication tokens.
+                // Alternatively, call embedApp to restart the process again, including authentication.
+                // This will reload the application, which will help clear any errors surface earlier due to the session expiry.
                 embeddingApp.embedApp(visierIframeId);
                 break;
             default:
@@ -203,10 +223,21 @@ function attachSessionEventHandlers(embeddingApp) {
  */
 function attachErrorEventHandlers(embeddingApp) {
     embeddingApp.on("error", function(msg) {
+        console.error("ERROR: ", msg);
         switch (msg?.code?.toUpperCase()) {
             case "CONTAINER_MISSING":
                 // If the container to embed the content in cannot be found.
                 renderVisierErrorMessage("Invalid container", msg);
+                break;
+            case "FAILED_TO_EJECT_PREVIOUS_SESSION":
+                /**
+                 * When this is a second page that was opened that embeds content for a different user or tenant,
+                 * the SDK attempts to clean up any prior sessions. This error is emitted in the case of unexpected
+                 * errors performing that clean up on the other page.
+                 *
+                 * The partner application can clean up the other session and attempt embedding once again.
+                 */
+                renderVisierErrorMessage("Multiple users are not supported. Clean up previous user sessions before establishing a new user's session.")
                 break;
             case "INVALID_APP_URL":
                 // Either an invalid URL was passed to the embedApp method or no default URL could be found.
@@ -228,6 +259,7 @@ function attachErrorEventHandlers(embeddingApp) {
  */
 function attachInfoEventHandlers(embeddingApp) {
     embeddingApp.on("info", function(msg) {
+        console.info("INFO: ", msg);
         switch (msg?.code?.toUpperCase()) {
             case "VISIER_APP_LOADED":
                 /**
@@ -246,9 +278,10 @@ function attachInfoEventHandlers(embeddingApp) {
 /**
  * Add event handlers for debug events.
  * These are short messages to help better facilitate joint debugging between teams.
+ * We've set this up so that it only logs if you set enableDebugLogging to true.
  */
 function attachDebugEventHandlers(embeddingApp) {
-    if (visierGlobals.enabledDebugLogging) {
+    if (visierGlobals.enableDebugLogging) {
         embeddingApp.on("debug", function(msg) {
             console.debug("Received debug message from Visier:", msg);
         });
@@ -285,6 +318,7 @@ async function buildVisierNavigationMenu(embeddingApp) {
 
     // Find the Visier navigation container.
     const visierNavigationSection = document.getElementById('visier-navigation-section');
+    visierNavigationSection.style.display = "flex";
 
     sections.forEach((section) => {
         // Create an element for the application section title/root.
@@ -311,6 +345,11 @@ async function buildVisierNavigationMenu(embeddingApp) {
         visierNavigationSection.appendChild(sectionHeader);
         visierNavigationSection.appendChild(sectionDiv);
     });
+}
+
+function hideNavigationSection() {
+    const visierNavigationSection = document.getElementById('visier-navigation-section');
+    visierNavigationSection.style.display = "none";
 }
 
 
@@ -360,8 +399,19 @@ function renderVisierErrorMessage(message, data) {
 
     if (message) {
         console.error(message, data || "No additional information supplied.");
-        alert(message);
+        showErrorModal(message);
     }
+}
+
+function showErrorModal(message) {
+    const modal = document.getElementById("error-modal");
+    modal.style.display = "flex";
+    document.getElementById("error-modal-content").innerText = message;
+}
+
+function hideErrorModal() {
+    const modal = document.getElementById("error-modal");
+    modal.style.display = "none";
 }
 
 function showAppIframe() {
