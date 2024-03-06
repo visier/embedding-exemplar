@@ -61,11 +61,11 @@ const visierGlobals = {
 // Set up the `visierConfig`. The `visierConfig` bootstraps the SDK.
 const visierConfig = {
     // Set the URL to use for logging into Visier.
-    visierUrl: `${visierUrl}/VServer`,
+    visierUrl: "https://{{vanityName}}.visier.com/hr",
 
     // Optional: Set the URL for your IDP.
     // The IdP URL that handles hidden sessions and posts valid SAML assertions.
-    idpUrl: `${hostname}:${port}/connectVisierSession`
+    idpUrl: "https://127.0.0.1/connectVisierSession"
 };
 
 // Copy the following function and use it to embed the full Visier application into your
@@ -86,9 +86,6 @@ const visierConfig = {
 
 // Bootstrap must always be the first call to `visier()`.
 visier('bootstrap', visierConfig, async function(app) {
-    visier("on", "debug", function (msg) {
-        console.debug("DEBUG:", msg);
-    });
     attachSessionEventHandlers(app);
     attachErrorEventHandlers(app);
     attachInfoEventHandlers(app);
@@ -135,7 +132,6 @@ function cleanUpVisierSession() {
  */
 function attachSessionEventHandlers(embeddingApp) {
     embeddingApp.on("session", function(msg) {
-        console.log("SESSION: ", msg);
         switch (msg?.code?.toUpperCase()) {
             case "EJECT_SESSION":
                 /**
@@ -223,7 +219,6 @@ function attachSessionEventHandlers(embeddingApp) {
  */
 function attachErrorEventHandlers(embeddingApp) {
     embeddingApp.on("error", function(msg) {
-        console.error("ERROR: ", msg);
         switch (msg?.code?.toUpperCase()) {
             case "CONTAINER_MISSING":
                 /**
@@ -274,7 +269,6 @@ function attachErrorEventHandlers(embeddingApp) {
  */
 function attachInfoEventHandlers(embeddingApp) {
     embeddingApp.on("info", function(msg) {
-        console.info("INFO: ", msg);
         switch (msg?.code?.toUpperCase()) {
             case "VISIER_APP_LOADED":
                 /**

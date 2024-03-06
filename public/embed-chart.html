@@ -91,24 +91,15 @@
          * ****************************************************************************************
          */
 
-        const hostname = 'https://127.0.0.1';
-        const port = 444;
-        const visierUrl = 'https://jupiter.visier.localhost';
-
         // Set up the `visierConfig`. The `visierConfig` bootstraps the SDK.
         const visierConfig = {
-                // Set the URL to log into Visier.
-                // visierUrl: `${visierUrl}/VServer`,
-                // visierUrl: "https://useasth.visier.com/VServer",
-                // visierUrl: "https://jupiter.devbase.visierdev.com/VServer",
-                visierUrl: "https://jupiter.visier.localhost/VServer",
-                // visierUrl: 'https://jupiter.visier-winter.com/VServer',
+            // Set the URL to log into Visier.
+            visierUrl: "https://{{vanityName}}.visier.com/hr",
 
-                // Optional: Set the URL for your IDP.
-                // The IdP URL that handles hidden sessions and posts valid SAML assertions.
-                idpUrl: `${hostname}:${port}/connectVisierSession`
-                // idpUrl: "https://127.0.0.1:444/connectVisierSession"
-            };
+            // Optional: Set the URL for your IDP.
+            // The IdP URL that handles hidden sessions and posts valid SAML assertions.
+            idpUrl: "https://127.0.0.1/connectVisierSession"
+        };
 
         // Copy the following function and use it to embed visualizations from Visier into your
         // application. This function is the same for any and all embedded visualizations. The
