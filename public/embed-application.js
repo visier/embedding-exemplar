@@ -139,7 +139,7 @@ function attachSessionEventHandlers(embeddingApp) {
         switch (msg?.code?.toUpperCase()) {
             case "EJECT_SESSION":
                 /**
-                 * This message is emitted if another tab is opened which embeds content for a different user or tenant.
+                 * This message is emitted if the user opens another tab that embeds content for a different user or tenant.
                  * The session on this tab will be cleaned up. Any continued attempts to use this session will result in
                  * unexpected behavior such as showing data for the other user or tenant.
                  *
@@ -226,25 +226,40 @@ function attachErrorEventHandlers(embeddingApp) {
         console.error("ERROR: ", msg);
         switch (msg?.code?.toUpperCase()) {
             case "CONTAINER_MISSING":
-                // If the container to embed the content in cannot be found.
+                /**
+                 * If the container to embed the content in cannot be found.
+                 */
                 renderVisierErrorMessage("Invalid container", msg);
                 break;
             case "FAILED_TO_EJECT_PREVIOUS_SESSION":
                 /**
-                 * When this is a second page that was opened that embeds content for a different user or tenant,
-                 * the SDK attempts to clean up any prior sessions. This error is emitted in the case of unexpected
-                 * errors performing that clean up on the other page.
+                 * If the user opens a second tab that embeds content for a different user or tenant, this error is emitted
+                 * in the case of unexpected errors while performing cleanup on the first tab.
                  *
                  * The partner application can clean up the other session and attempt embedding once again.
                  */
                 renderVisierErrorMessage("Multiple users are not supported. Clean up previous user sessions before establishing a new user's session.")
                 break;
             case "INVALID_APP_URL":
-                // Either an invalid URL was passed to the embedApp method or no default URL could be found.
+                /**
+                 * Either an invalid URL was passed to the embedApp method or no default URL could be found.
+                 */
                 renderVisierErrorMessage("Invalid Visier app url found", msg);
                 break;
+            /**
+             * These timeout errors emit if there are unexpected issues with the authentication set up or if the set up took
+             * longer than expected, such as due to network latency. Possible causes include:
+             *  - The IdP failed to authenticate the user. Check the Network tab.
+             *  - The service worker failed to load. Look for errors in the Console tab and turn on enableDebugLogging.
+             */
+            case "SW_LOADER_TIMEOUT":
+            case "SW_LOADING_TIMEOUT":
+                renderVisierErrorMessage("Unexpected error loading the embedded app. Try extending the requestTimeout in case of network latency.");
+                break;
             case "VISIER_APP_DOWN":
-                // When Visier is unavailable, render and log an error message.
+                /**
+                 * When Visier is unavailable, render and log an error message.
+                 */
                 renderVisierErrorMessage("Visier currently unavailable", msg);
                 break;
             default:
