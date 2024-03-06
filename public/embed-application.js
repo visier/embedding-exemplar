@@ -241,14 +241,14 @@ function attachErrorEventHandlers(embeddingApp) {
                  */
                 renderVisierErrorMessage("Invalid Visier app url found", msg);
                 break;
-            /**
-             * These timeout errors emit if there are unexpected issues with the authentication set up or if the set up took
-             * longer than expected, such as due to network latency. Possible causes include:
-             *  - The IdP failed to authenticate the user. Check the Network tab.
-             *  - The service worker failed to load. Look for errors in the Console tab and turn on enableDebugLogging.
-             */
             case "SW_LOADER_TIMEOUT":
             case "SW_LOADING_TIMEOUT":
+                /**
+                 * These timeout errors emit if there are unexpected issues with the authentication set up or if the set up took
+                 * longer than expected, such as due to network latency. Possible causes include:
+                 *  - The IdP failed to authenticate the user. Check the Network tab.
+                 *  - The service worker failed to load. Look for errors in the Console tab and turn on enableDebugLogging.
+                 */
                 renderVisierErrorMessage("Unexpected error loading the embedded app. Try extending the requestTimeout in case of network latency.");
                 break;
             case "VISIER_APP_DOWN":
