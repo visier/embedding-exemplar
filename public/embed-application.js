@@ -77,11 +77,14 @@ const visierConfig = {
     w[v] = w[v] || function() {
         (w[v].q = w[v].q || []).push(arguments)
     };
-    e = d.createElement(t);
-    x = d.getElementsByTagName(t)[0];
-    e.async = true;
-    e.src = c.visierUrl ? c.visierUrl + s : (c.loginUrl ? c.loginUrl.split("/auth/embedded")[0] + s : s);
-    x.parentNode.insertBefore(e, x)
+    if (!d.getElementById(s)) {
+        e = d.createElement(t);
+        x = d.getElementsByTagName(t)[0];
+        e.id = s;
+        e.async = true;
+        e.src = c.visierUrl ? c.visierUrl + s : (c.loginUrl ? c.loginUrl.split("/auth/embedded")[0] + s : s);
+        x.parentNode.insertBefore(e, x);
+    }
 })(window, document, 'script', '/assets/embedded/webAssets/sdk.v2.js', visierConfig, 'visier');
 
 // Bootstrap must always be the first call to `visier()`.
