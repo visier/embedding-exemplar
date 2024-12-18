@@ -88,10 +88,10 @@ You must add a SSO configuration and embeddable domain to your Visier sandbox te
 3. Create an SSO configuration with the following values taken from `config.js`:
    - **Issuer:** `saml.samlIssuerUrl` Default is `https://www.visier-exemplar.com`.
    - **IdP URL:** `{{hostname}}/connectVisierSession` Using the default value yields `https://127.0.0.1/connectVisierSession`.
-   - **Certificate:** Set to the value of the file at `saml.cert`. Ensure you have already run the `generate-certs` script as described above.
+   - **Certificate:** Set to the value of the file at `saml-cert.pem`. Ensure you have already run the `generate-certs` script as described above.
 4. Navigate back to `Tenant Single Sign-On`. Turn on `Enable SSO` and then turn on `Auto Provision`.
 ### Embeddable Domain
-1. In the studio experience in your sandbox tenant, open a project and navigate to `Settings > Embeddable Domains`.
+1. In your sandbox tenant, on the global navigation bar, click `Settings > Embeddable Domains`.
 2. Add an entry for the `hostname` specified in `config.js` (default is `https://127.0.0.1`).
 
 # Running Locally
