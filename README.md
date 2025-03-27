@@ -93,6 +93,7 @@ You must add a SSO configuration and embeddable domain to your Visier sandbox te
 ### Embeddable Domain
 1. In your sandbox tenant, on the global navigation bar, click `Settings > Embeddable Domains`.
 2. Add an entry for the `hostname` specified in `config.js` (default is `https://127.0.0.1`).
+   - Requires a secure domain using Hypertext Transfer Protocol Secure (https). For more information, see [Add Your Domain to the Embeddable Domains List](https://docs.visier.com/embedded/Default.htm#cshid=1058).
 
 # Running Locally
 ```bash
