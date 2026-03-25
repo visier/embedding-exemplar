@@ -34,7 +34,7 @@ To embed Visier, the partner application must include three elements:
  5. Optionally, the JavaScript code calls `get("APPLICATION_SECTIONS")` and uses the response to build the navigation bar.
 Visier is now successfully embedded in the partner application! Be aware that there are other workflows that may take place, such as when an error occurs. See `embed-application.js` for documentation and implementation of other workflows.
 
-For more detailed documentation on embedding Visier, see https://docs.visier.com/embedded/Visier%20API/integration/embed-visier-home.htm.
+For more detailed documentation on embedding Visier, see [Embed Visier in Your Application](https://docs.visier.com/developer/Visier%20API/integration/embed-visier-home.htm).
 
 # Application Structure
 The directory hierarchy is structured as follows:
@@ -93,7 +93,7 @@ You must add a SSO configuration and embeddable domain to your Visier sandbox te
 ### Embeddable Domain
 1. In your sandbox tenant, on the global navigation bar, click `Settings > Embeddable Domains`.
 2. Add an entry for the `hostname` specified in `config.js` (default is `https://127.0.0.1`).
-   - Requires a secure domain using Hypertext Transfer Protocol Secure (https). For more information, see [Add Your Domain to the Embeddable Domains List](https://docs.visier.com/embedded/Default.htm#cshid=1058).
+   - Requires a secure domain using Hypertext Transfer Protocol Secure (https). For more information, see [Add Your Domain to the Embeddable Domains List](https://docs.visier.com/developer/Default.htm#cshid=1058).
 
 # Running Locally
 ```bash
